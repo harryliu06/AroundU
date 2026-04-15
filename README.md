@@ -4,10 +4,10 @@
 - Jacob Ryan Almaria (jalmaria)
 - Dorian Steve Ramirez (doriansr)
 
-# Executive Summary:
+## Executive Summary:
 
 
-# Application Context
+## Application Context
 
 
-# Functional Requirements
+## Functional Requirements
