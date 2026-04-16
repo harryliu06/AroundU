@@ -1,13 +1,3 @@
-# Title : GEOLOCATOR
-## Team Member: 
-- Harry Lwin (hlwin1)
-- Jacob Ryan Almaria (jalmaria)
-- Dorian Steve Ramirez (doriansr)
-
-## Executive Summary:
-
-
-## Application Context
-
-
-## Functional Requirements
+## 4/15/26
+- Present: Harry Lwin, Jacob Ryan Almaria, Dorian Steve Ramirez
+- Discussed some of the functional requirements for the document.
