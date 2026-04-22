@@ -5,3 +5,11 @@
   - Jacob Ryan Almaria
   - Dorian Steve Ramirez
 - Discussed some of the functional requirements for the document.
+
+### April, Wed 22, 2026
+- Present:
+  - Harry Lwin
+  - Jacob Ryan Almaria
+  - Dorian Steve Ramirez
+  - Swaraag Sistla
+- Created the pitch for our project.
