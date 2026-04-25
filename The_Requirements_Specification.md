@@ -12,6 +12,8 @@ The application is designed for individuals who are trying to build meaningful c
 
 This application is available on both IOS and android systems, and can also be accessed through any web browser. It’s free to download from the Google Store and Apple Store. Since this application primarily runs on a smartphone's location access to connect with other people nearby, it’s necessary to turn on location access and the internet is mandatory to chat with other people in the app. 
 
+## Environmental Contraints
+- A mobile app that will function on Android and IOS devices.
 
 ## Functional Requirements
 - **Chat function within the radius of the circle**
