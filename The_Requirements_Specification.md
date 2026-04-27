@@ -18,53 +18,81 @@ This application is available on both IOS and android systems so it’s free to 
 ## Functional Requirements
 - **Chat function within the radius of the circle**
   - Needs Radius Agreement to chat each other
+  - Radius: 0 - 25 miles, 
   - Message Request for the first time interaction, 
-  - For out of range, have to follow each other/ become friends to continue conversation (Friend Request should still be valid after out of range)
-    - Pros: Can interact with other people in the application for future meetups
-    - Cons: Spam requests or unwanted requests from other users (Blocking feature cancel this out)
+    - For out of range, have to follow each other/ become friends to continue conversation (Friend Request should still be valid after out of range)
+  - "Meet-up" request available in chat box (Leads to Meet-up Direction feature)
+
+    - Pros:
+      - Can interact with other people in the application for future meetups
+      - Getting to know other people before seeing them in person.
+      - Plan the schedule or meet-up place with other people for gatherings.  
+    - Cons:
+      - Spam requests or unwanted requests from other users
+      - Texting abuse or Inappropriate content from strangers
 
 - **Blocking users**
   - Users can block other users to prevent messaging, location tracking, and profile viewing.
+  - Users can unblock if they change their mind later on.
+  - Users can report the inappropriate behaviors when blocking so that the support team can look into the issue.
     - Pros: 
-Can protect the security and privacy of certain users who wish to avoid people.
+      - Can protect the security and privacy of certain users who wish to avoid certain people.
+      - Upholding the safety of the overall community through reports.
     - Cons: 
-Nothing prevents a user from creating another account?
+      - Nothing prevents a user from creating another account.
+      - Reports can be abused and spammed, wasting the time of the support team.
 
 - **Location Access toggle**
   - A user can toggle between enabling and disabling location access to their location on the app under settings.
+  - Can enable/disable location sharing for a set amount of time.
+  - A user can change the Active/Inactive status along with location access.
     - Pros: 
-Can be a moment of privacy and security, preventing a person from being seen or viewed 24/7 for their location.
+      - Can be a moment of privacy and security, preventing a person from being seen or viewed 24/7 for their location.
+      - Allow more flexible location sharing and chatting with active users.
     - Cons: 
-Disabled permission means the app's features are diminished.
+      - Disabled permission means the app's features are diminished.
 
-- **User profile customization (Bio)**
+- **User profile customization (Biography)**
   - A user can customize their profile and bio any way they like (as in, anything they wish to write.)
+  - Can implement hashtags and open-ended/user-defined interests in the bio.
     - Pros: 
-Extra customization to stand out and introduce themselves.
+      - Extra customization to stand out and introduce themselves.
+      - A way to find more common interests with other people.
     - Cons: 
-Users can possibly be very inappropriate in their customization.
+      - Users can possibly be very inappropriate in their customization.
+      - Empty bio can make it hard for other users to know each other.
 
 
 - **Open-ended filtering**
   - Users can filter for people given interests and hobbies of their liking, it’s very open-ended and anyone can add anything they want, like hashtag in other social media platforms.
+  - Suggest popular hobbies or interests other users have.
     - Pros: 
-No limits to finding people and filtering.
+      - No limits to finding people and filtering.
+      - Allows for the introduction of "niche" interests to other users.
     - Cons: 
-People can still also behave terribly and write inappropriate stuff. (Some form of filtering and/or censoring could be necessary)
+      - People can still also behave terribly and write inappropriate stuff. (Some form of filtering and/or censoring could be necessary)
 
 - **Adding friends and community**
-  - People can make friends and people in a community of interest they can follow or become friends with for extra conversations and followings aside from the meetups. (With friends, there must be a permission before becoming friends.)
+  - Users can make friends with other users in a community of interest. They can become friends for extra conversations aside from the meetups. (Friend requests must be sent and mutually agreed on to become friends)
+  - Displaying users their "Community" (friend count).
+  - Friend-exclusive chatting.
+  - Create group chat with friends (can't join if not friends).
     - Pros: 
-More ways to keep in touch with a friend or community of people with the same interests, maybe even able to get together and plan events.
+      - More ways to keep in touch with a friend or community of people with the same interests, maybe even able to get together and plan events.
     - Cons: 
-There’s the usual chance of running into toxic, bad, or inappropriate communities.
+      - There’s the usual chance of running into toxic, bad, or inappropriate friends.
 
 - **Meet-up directions.**
-  - Users can send their directions/map location to those they agree to meet up with. It can consists of written instructions, typical google maps style path, and/or pictures for referencing locations/landmarks.
+  - Users can send their directions/map location to those they agree to meet up with.
+  - It can consist of written instructions, typical google maps style path, and/or pictures for referencing locations/landmarks.
+  - Suggest best transportation type to go to the meetups.
     - Pros: 
-Makes meeting up easier.
-Keeps people aware of where they are heading and what type of location they are going.
+      - Makes meeting up easier.
+      - Keeps people aware of where they are heading and what type of location they are going.
+      - Helps decide which type of transportation to use to go to meetups.
     - Cons: 
-Accidentally reveal sensitive data from your location.
+      - Accidentally reveal sensitive data from your location.
+      - People can conceal their true selves online. Making meet-ups a potential risk for users.
+      - Meet-up directions can be confusing for some users.
 
 <img width="3290" height="1379" alt="Use Case Diagram Team Whiteboard in Blue Green Yellow Simple Colorful Style (1)" src="https://github.com/user-attachments/assets/e6d2434c-c0c1-4f70-a548-266531a16085" />
