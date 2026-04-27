@@ -20,4 +20,10 @@
   - Jacob Ryan Almaria
   - Dorian Steve Ramirez
   - Swaraag Sistla
-- Continuing with the requirement specification, functional analysis.
+- Continuing with the requirement specification, functional analysis. Additionally, assigning use case flows.
+  - Flow Designations:
+    - Dorian: Location Access, Open-ended filtering
+    - Harry: Meet-up directions
+    - Jacob: Radius Chat Function
+    - Swaraag: Blocking Users
+    - Tatiana: Adding friends, User profile customization
