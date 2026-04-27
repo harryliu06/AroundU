@@ -19,4 +19,5 @@
   - Harry Lwin
   - Jacob Ryan Almaria
   - Dorian Steve Ramirez
+  - Swaraag Sistla
 - Continuing with the requirement specification, functional analysis.
