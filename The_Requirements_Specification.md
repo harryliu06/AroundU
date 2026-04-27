@@ -10,7 +10,7 @@ The main goal is to gather like-minded people in one place based on their intere
 ## Application Context
 The application is designed for individuals who are trying to build meaningful connections with new people that share similar interests and hobbies. In this technological age, it’s becoming more difficult to connect with new people and face-to-face interactions are becoming rarer than ever. This app targets students and young working professionals, especially those who are in new areas, to expand their social network by providing a platform that allows online discovery of new friends to interact in offline places. 
 
-This application is available on both IOS and android systems, and can also be accessed through any web browser. It’s free to download from the Google Store and Apple Store. Since this application primarily runs on a smartphone's location access to connect with other people nearby, it’s necessary to turn on location access and the internet is mandatory to chat with other people in the app. 
+This application is available on both IOS and android systems so it’s free to download from the Google Store and Apple Store. Since this application primarily runs on a smartphone's location access to connect with other people nearby, it’s necessary to turn on location access and the internet is mandatory to chat with other people in the app. 
 
 ## Environmental Contraints
 - A mobile app that will function on Android and IOS devices.
