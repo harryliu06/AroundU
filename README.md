@@ -26,4 +26,4 @@
     - Harry: Meet-up directions
     - Jacob: Radius Chat Function, User profile customization
     - Swaraag: Blocking Users
-    - ~~Tatiana: Adding friends, User profile customization (Didn't do tasks)~~ 
+    - ~~Tatiana: Adding friends, User profile customization~~ (Didn't do tasks) 
