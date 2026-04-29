@@ -1,31 +1,47 @@
-## Meetings
-### April, Wed 15, 2026
-- Present:
-  - Harry Lwin
-  - Jacob Ryan Almaria
-  - Dorian Steve Ramirez
-- Discussed some of the functional requirements for the document.
+# AroundU
 
-### April, Wed 22, 2026
-- Present:
-  - Harry Lwin
-  - Jacob Ryan Almaria
-  - Dorian Steve Ramirez
-  - Swaraag Sistla
-- Created the pitch for our project.
+AroundU is a social geo‑finder app that helps people discover others nearby, connect, and meet up in real life. Similar to a mix between a geo-finder, Google Maps, and lightweight social messaging. Built for quick meetups, shared interests, and hangouts.
 
-### April, Sunday 26, 2026 (Virtual)
-- Present:
-  - Harry Lwin
-  - Jacob Ryan Almaria
-  - Dorian Steve Ramirez
-  - Swaraag Sistla
-- Continuing with the requirement specification, functional analysis. Additionally, assigning use case flows.
-  - Flow Designations:
-    - Dorian: Location Access, Open-ended filtering, Adding Friends
-    - Harry: Meet-up directions
-    - Jacob: Radius Chat Function, User profile customization
-    - Swaraag: Blocking Users
-    - ~~Tatiana: Adding friends, User profile customization~~ (Didn't do tasks)
-      - UPDATE:
-        - Tatiana had some midterms they were busy with, as such, they weren't able to do the work. However, they didn't communicate this with their team.
+## Team Members
+- Dorian Steve Ramirez - (doriansr)
+- Harry Lwin - hlwin1)
+- Jacob Ryan Almaria - (jalmaria)
+- Swaraag Sistla - (swaraags)
+- Tatiana Anahi Gutierrez - (tagutie2)
+
+## Project Documents
+- 📄 **Requirements Specification:**  
+  https://github.com/doriansr-ai/Live-Geo-Friend-Finder/blob/main/The_Requirements_Specification.md
+
+- 📝 **Meeting Notes:**  
+  https://github.com/doriansr-ai/Live-Geo-Friend-Finder/blob/main/Meeting_notes.md
+
+## What This Repo Is For
+This repository holds all the documentation for our AroundU project.  
+Right now, the focus is on requirements, use cases, and early planning.  
+Actual implementation will come later once the spec is fully locked in.
+
+## Features (High-Level)
+- Radius-based chat function  
+- Customizable profile and flexible settings  
+- Friend requests & community  
+- Messaging + meet-up directions  
+- Optional filters for interests 
+
+*(Full details are in the Requirements Specification.)*
+
+## Repo Structure
+/main
+- /docs                # TBA
+- /src                 # TBA
+- /The_Requirements_Specification.md
+- /meetings.md
+- /README.md
+
+
+## Current Status
+- Requirements: Done
+- Use cases: Done
+- Meeting logs: In Progress
+
+## Notes
