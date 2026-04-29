@@ -131,6 +131,21 @@ Use Cases:
       - Users can possibly be very inappropriate in their customization.
       - Empty bio can make it hard for other users to know each other.
 
+--------------
+Use Cases:
+- Basic Flow -
+  1. User opens up their profile page.
+  2. User selects the “Edit Profile” option.
+  3. User edits their biography with a clear, understandable message.
+- Alternative Flow -
+  1. User opens up their profile page.
+  2. User selects the “Edit Profile” option.
+  3. User edits their biography with a clear, understandable message.
+  4. User adds hashtags with their interests.
+- Exception Flow - 
+  1. User decides not to include a biography; the feature is not used at all.
+
+--------------
 
 - **Open-ended filtering**
   - Users can filter for people given interests and hobbies of their liking, it’s very open-ended and anyone can add anything they want, like hashtag in other social media platforms.
@@ -210,9 +225,9 @@ Use Cases:
 - Basic Flow - 
   1. User A and User B agree to meet after chatting.
   2. User A selects “Share Directions”.
-  3. User A chooses a location to meet: 
-    a. Current Location
-    b. Selected Location (e.g., public park, cafe)
+  3. User A chooses a location to meet:
+      1. Current Location
+      2. Selected Location (e.g., public park, cafe)
   4. The system generates optimal map routes, directions and estimated time of arrival to the destination. 
   5. User A sends the meet-up location to User B. 
   6. When User B receives a location in chatbox, they can either use a built-in direction tool or an external application (Google Map, Apple Map, Waze) for direction to the location. 
