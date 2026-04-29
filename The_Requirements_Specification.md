@@ -15,7 +15,12 @@ The application is designed for individuals who are trying to build meaningful c
 This application is available on both IOS and android systems so it’s free to download from the Google Store and Apple Store. Since this application primarily runs on a smartphone's location access to connect with other people nearby, it’s necessary to turn on location access and the internet is mandatory to chat with other people in the app. 
 
 ## Environmental Constraints
-- A mobile app that will function on Android and IOS devices.
+- The system will operate as a mobile application on both Android (14+) and iOS (17+) devices.
+- Devices must include functional GPS hardware to support real‑time location tracking.
+- The application requires an active internet connection (Wi‑Fi or mobile data) for map rendering, user discovery, and messaging.
+- The system depends on external mapping and geolocation APIs, and must comply with their rate limits, availability, and usage policies (Might be a Google Maps API).
+- The app must gain permission on Android and iOS for accessing location, notifications, and camera features.
+- The system must function in varying physical environments, including areas with weak GPS signals or inconsistent network coverage.
 
 ## Functional Requirements
 - **Chat function within the radius of the circle**
