@@ -26,4 +26,6 @@
     - Harry: Meet-up directions
     - Jacob: Radius Chat Function, User profile customization
     - Swaraag: Blocking Users
-    - ~~Tatiana: Adding friends, User profile customization~~ (Didn't do tasks) 
+    - ~~Tatiana: Adding friends, User profile customization~~ (Didn't do tasks)
+      - UPDATE:
+        - Tatiana had some midterms they were busy with, as such, they weren't able to do the work. However, they didn't communicate this with their team.
