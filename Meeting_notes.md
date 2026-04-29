@@ -29,3 +29,11 @@
     - ~~Tatiana: Adding friends, User profile customization~~ (Didn't do tasks)
       - UPDATE:
         - Tatiana had some midterms they were busy with, as such, they weren't able to do the work. However, they didn't communicate this to their team. Letting it slide for this one.
+       
+### April, Wednesday 29, 2026
+- Present:
+  - Harry Lwin
+  - Jacob Ryan Almaria
+  - Dorian Steve Ramirez
+  - Swaraag Sistla
+- Discussing the architecture and requirements for HW 2
