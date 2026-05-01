@@ -37,3 +37,11 @@
   - Dorian Steve Ramirez
   - Swaraag Sistla
 - Discussing the architecture and requirements for HW 2
+
+### May, Friday 1, 2026
+- Present:
+  - Harry Lwin
+  - Jacob Ryan Almaria
+  - Dorian Steve Ramirez
+  - Tatiana Anahi Gutierrez
+- Discussing the HW 2 architecture.
