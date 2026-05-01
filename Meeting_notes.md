@@ -45,3 +45,9 @@
   - Dorian Steve Ramirez
   - Tatiana Anahi Gutierrez
 - Discussing the HW 2 architecture.
+  - Benefits and Trade-offs/Analysis designations:
+    - Jacob: Analysis for programming languages
+    - Dorian: Architectural styles/components and connectors analysis.
+    - Harry: Analysis for communication protocols.
+    - Tatiana: Platform benefits and tradeoff analysis.
+  - *Deadline: Wednesday, 6*
