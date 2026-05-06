@@ -1,0 +1,5 @@
+node_modules
+.env
+Interface/.expo
+tsconfig.json
+Interface/node_modules
