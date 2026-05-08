@@ -16,6 +16,12 @@ AroundU is a social geo‑finder app that helps people discover others nearby, c
 - 📝 **Meeting Notes:**  
   https://github.com/doriansr-ai/Live-Geo-Friend-Finder/blob/main/Meeting_notes.md
 
+- 🏗️ **Architecture**
+  - Summary: https://github.com/doriansr-ai/INF43-4PM-Discussion-Group-4/blob/main/Architectural%20Summary.md
+  - Platforms & Languages: https://github.com/doriansr-ai/INF43-4PM-Discussion-Group-4/blob/main/Platforms%20and%20Languages.md
+  - Communication Protocols: https://github.com/doriansr-ai/INF43-4PM-Discussion-Group-4/blob/main/Communication%20Protocols.md
+  - Component and Connector Examples: https://github.com/doriansr-ai/INF43-4PM-Discussion-Group-4/blob/main/Component%20Functions%20%2B%20Connectors.md
+
 ## What This Repo Is For
 This repository holds all the documentation for our AroundU project.  
 Right now, the focus is on requirements, use cases, and early planning.  
@@ -37,6 +43,10 @@ Actual implementation will come later once the spec is fully locked in.
 - /The_Requirements_Specification.md
 - /meetings.md
 - /README.md
+- /Architectural Summary.md
+- /Platforms and Languages.md
+- /Communication Protocols.md
+- /Component Functions + Connectors.md
 
 
 ## Current Status
