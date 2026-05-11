@@ -1,9 +1,0 @@
-{
-  "name": "live-geo-friend-finder",
-  "private": true,
-  "scripts": {
-    "mobile:start": "npm --prefix Interface run start",
-    "mobile:android": "npm --prefix Interface run android",
-    "mobile:ios": "npm --prefix Interface run ios"
-  }
-}
