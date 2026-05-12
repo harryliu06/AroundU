@@ -51,3 +51,17 @@
     - Harry: Analysis for communication protocols.
     - Tatiana: Platform benefits and tradeoff analysis.
   - *Deadline: Wednesday, 6*
+
+### May, Monday 11, 2026
+- Present:
+  - Harry Lwin
+  - Jacob Ryan Almaria
+  - Dorian Steve Ramirez
+- Discussing and distributing Component and Connector Examples:
+  - Component Functions Distribution:
+    - Jacob: Radius Chat Function, User profile customization
+    - Dorian: Location Access, Open-ended filtering
+    - Harry: Meet-up directions
+    - Tatiana: Adding Friends
+    - Swaraag Sistla: Blocking Users
+- *Deadline: Wednesday, 13*
