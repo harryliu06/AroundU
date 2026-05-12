@@ -12,6 +12,7 @@ import {
 
 import {router} from 'expo-router'
 
+const API_URL = 'http://192.168.1.181:8000'
 
 type LoginForm = {
   email: string
@@ -46,7 +47,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch('http://localhost:8081/login', {
+      const response = await fetch(`${API_URL}/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -61,8 +62,7 @@ export default function Login() {
         return
       }
 
-      router.replace('/home')
-
+      router.replace('/')
     } catch (error) {
       setError('Network error. Please try again later.')
     } finally {
@@ -83,9 +83,10 @@ export default function Login() {
     setIsSubmitting(true)
     await new Promise((resolve) => setTimeout(resolve, 900))
 
-    router.replace('/login')
-
+    setError(null)
     setIsSubmitting(false)
+    
+    await handleLogin()
   }
 
   return (
