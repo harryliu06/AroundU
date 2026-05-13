@@ -53,8 +53,6 @@ Actual implementation will come later once the spec is fully locked in.
 - Requirements: Done
 - Use cases: Done
 - Meeting logs: In Progress
-- Prototype:
-  <img width="300" height="357" alt="image" src="https://github.com/user-attachments/assets/1ed49000-7556-433d-841a-61cca13ff9c6" />
-
+- Prototype: In Progress (Not deployed yet)
 
 ## Notes
