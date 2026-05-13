@@ -6,7 +6,15 @@
   - Downsides:
      - Restricting the application to newer operating systems may limit accessibility for users with older devices who are unable or unwilling to update their software. This could reduce the potential user base, particularly during the early stages of the app release. Furthermore, despite targeting newer versions, device variability, especially within the Android ecosystem, can still introduce inconsistencies in performance and behavior. Finally, users on modern platforms often have higher expectations for performance and design quality, increasing the pressure to deliver a highly polished and bug-free experience upon first release.
 
-Backend server: SQLite 3 for local development and PostgreSQL Cloud later
+- Backend server: SQLite 3 for local development and PostgreSQL Cloud later
+  - Benefits:
+    - The application will use SQLite 3 during development because it is lightweight, simple to set up, and works well for testing features early on without needing a full server. This allows the team to quickly develop and test important features such as user profiles, chat functions, and location based matching. SQLite also makes debugging easier during the early stages of development. As the app grows, the backend can transition to a cloud hosted PostgreSQL database. PostgreSQL is better suited for handling larger amounts of data and more active users at the same time. It also provides stronger security, better performance, and improved reliability for features such as real time messaging and user matching.
+
+  - Downsides:
+    - SQLite works well for development, but it is not ideal for a large-scale social application because it cannot efficiently handle many users interacting at once. As user activity increases, performance may slow down. Transitioning from SQLite to PostgreSQL later may also require additional testing and database migration to make sure everything continues working correctly. Using a cloud hosted PostgreSQL server can also increase costs over time due to server hosting, storage, and maintenance. Since the app handles user accounts, messages, and location sharing, stronger security measures will also be necessary as the platform grows.
+
+  - Future Growth:
+    - Starting with SQLite helps keep development simple and cost effective during the early stages of the project. As the application gains more users, PostgreSQL Cloud will allow the app to scale more efficiently and support future features such as improved messaging systems, moderation tools, and larger user activity.
 
 
 
