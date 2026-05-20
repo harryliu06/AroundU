@@ -65,3 +65,12 @@
     - Tatiana: Adding Friends
     - Swaraag Sistla: Blocking Users
 - *Deadline: Wednesday, 13*
+
+### May, Wednesday 20, 2026
+- Present:
+  - Harry Lwin
+  - Jacob Ryan Almaria
+  - Dorian Steve Ramirez
+  - Swaraag Sistla
+- Discussing and organizing the ui design standards and wireframes.
+- *Deadline: Monday, 1
