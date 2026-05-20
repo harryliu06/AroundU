@@ -73,4 +73,4 @@
   - Dorian Steve Ramirez
   - Swaraag Sistla
 - Discussing and organizing the ui design standards and wireframes.
-- *Deadline: Monday, 1
+- *Deadline: Monday, 1*
