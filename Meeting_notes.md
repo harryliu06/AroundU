@@ -74,3 +74,12 @@
   - Swaraag Sistla
 - Discussing and organizing the ui design standards and wireframes.
 - *Deadline: Monday, 1*
+
+### May, Tuesday 26, 2026
+- Present:
+  - Harry Lwin
+  - Jacob Ryan Almaria
+  - Dorian Steve Ramirez
+  - Swaraag Sistla
+  - Tatiana Anahi Gutierrez
+- Discussing our ui design heuristic evaluations.
