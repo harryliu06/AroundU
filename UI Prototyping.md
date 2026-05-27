@@ -3,6 +3,7 @@
 ---
 ## UI Mockup/Screen Flow v1 (Very early demo)
 Created by Dorian Ramirez
+
 <img width="3626" height="3624" alt="UI Prototype v0 1" src="https://github.com/user-attachments/assets/bcf570fe-be48-4581-8274-bed1e6c0ab9e" />
 
 ---
@@ -16,7 +17,7 @@ Credits
 - Swaraag Sistla: Map Directions/Meet-up
 - Tatiana Gutierrez: Map Scan/Home screen
 
-[Add image here]
+<img width="3898" height="5081" alt="INF43-2026 GROUP 4 (1)" src="https://github.com/user-attachments/assets/1c809bcb-bf47-4e6b-9a18-a79628a5034a" />
 
 ---
 
