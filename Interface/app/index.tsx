@@ -14,6 +14,15 @@ export default function Home() {
             title="LOGIN"
             color="#841584"
             accessibilityLabel="Learn more about this purple button"
+      />
+      <Button
+        onPress={() => {
+          router.push('/createProfile'); 
+          console.log("Create Profile button Fired")
+        }}
+            title="CREATE PROFILE"
+            color="#841584"
+            accessibilityLabel="Learn more about this purple button"
             />
         </View>
   );
