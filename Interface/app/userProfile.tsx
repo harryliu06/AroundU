@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 
 const COVER_IMAGE =
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
@@ -23,6 +23,28 @@ const GALLERY_IMAGES = [
 ]
 
 export default function UserProfile() {
+  const params = useLocalSearchParams<{
+    fullName?: string
+    bio?: string
+    interests?: string
+  }>()
+  const fullName = params.fullName || 'FULL NAME PLACEHOLDER'
+  const bio =
+    params.bio ||
+    'BIOGRAPHY PLACEHOLDER'
+
+  let interests = ['Biking', 'Music', 'YouTube', 'Horror Films', 'Photography']
+
+  try {
+    const parsedInterests = JSON.parse(params.interests || '[]')
+
+    if (Array.isArray(parsedInterests) && parsedInterests.length > 0) {
+      interests = parsedInterests.map((interest) => String(interest))
+    }
+  } catch {
+    interests = ['Biking', 'Music', 'YouTube', 'Horror Films', 'Photography']
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -42,48 +64,22 @@ export default function UserProfile() {
 
         <View style={styles.content}>
           <View style={styles.avatarWrap}>
-            <Image source={{ uri: PROFILE_IMAGE }} style={styles.avatarImage} />
+            <Image source={{ uri: '../assets/profile-placeholder.jpg' }} style={styles.avatarImage} />
           </View>
 
-  <Text style={styles.name}>Harley Quizel</Text>
-          <Text style={styles.meta}>Biking, music, and weekend coffee runs</Text>
+          <Text style={styles.name}>{fullName}</Text>
+          <Text style={styles.meta}>{interests.slice(0, 3).join(', ')}</Text>
 
-          <Pressable
-            style={({ pressed }) => [styles.messageButton, pressed && styles.buttonInactive]}
-          >
-            <FontAwesome name="comment" size={16} color="#ffffff" style={styles.buttonIcon} />
-            <Text style={styles.primaryActionText}>Message Request</Text>
-          </Pressable>
-
-          <View style={styles.actionRow}>
-            <Pressable
-              style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonInactive]}
-            >
-              <FontAwesome name="user-plus" size={15} color="#2563eb" style={styles.buttonIcon} />
-              <Text style={styles.secondaryButtonText}>Add Friend</Text>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonInactive]}
-            >
-              <FontAwesome name="ban" size={15} color="#6b7280" style={styles.buttonIcon} />
-              <Text style={styles.mutedButtonText}>Block</Text>
-            </Pressable>
-          </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Bio</Text>
-            <Text style={styles.infoText}>
-              Hello, my name is Harley Quizel. I love riding my bikes on Friday evenings
-              and playing guitar over the weekends, making new tracks on my YouTube
-              Channel.
-            </Text>
+            <Text style={styles.infoText}>{bio}</Text>
           </View>
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Interests</Text>
             <View style={styles.tagRow}>
-              {['Biking', 'Music', 'YouTube', 'Horror Films', 'Photography'].map((tag) => (
+              {interests.map((tag) => (
                 <View key={tag} style={styles.tagChip}>
                   <Text style={styles.tagText}>{tag}</Text>
                 </View>
