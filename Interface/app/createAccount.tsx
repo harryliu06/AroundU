@@ -70,7 +70,7 @@ export default function CreateAccount() {
       return
     }
 
-    router.replace('/')
+    router.push('/userProfile')
   }
 
   return (
@@ -135,7 +135,7 @@ export default function CreateAccount() {
               disabled={!canSubmit}
               onPress={handleSubmit}
             >
-              <Text style={styles.primaryButtonText}>Continue</Text>
+              <Text style={styles.primaryButtonText}>Create Account</Text>
             </Pressable>
 
             <View style={styles.footerRow}>
