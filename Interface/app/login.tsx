@@ -64,7 +64,17 @@ export default function Login() {
         return
       }
 
-      router.replace('/')
+      const profileImage = data.user?.profile?.profileImage
+
+      router.replace({
+        pathname: '/userProfile',
+        params: {
+          fullName: data.user?.profile?.fullName,
+          bio: data.user?.profile?.bio,
+          interests: JSON.stringify(data.user?.profile?.interests ?? []),
+          ...(profileImage ? { profileImage } : {}),
+        },
+      })
     } catch (e) {
       setError('Network error. Please try again later.')
     } finally {
