@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
+  ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,7 +12,9 @@ import {
   View,
 } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
-import { router } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
+
+const API_URL = 'http://192.168.1.181:8000'
 
 type AccountForm = {
   email: string
@@ -42,35 +45,100 @@ function validate(form: AccountForm): string | null {
 }
 
 export default function CreateAccount() {
+  const profileParams = useLocalSearchParams<{
+    fullName?: string
+    age?: string
+    schoolOrWork?: string
+    bio?: string
+    interests?: string
+  }>()
   const [form, setForm] = useState<AccountForm>({
     email: '',
     password: '',
     confirmPassword: '',
   })
   const [message, setMessage] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const canSubmit = useMemo(() => {
     return (
+      !isSubmitting &&
       form.email.trim() !== '' &&
       form.password.trim() !== '' &&
       form.confirmPassword.trim() !== ''
     )
-  }, [form.confirmPassword, form.email, form.password])
+  }, [form.confirmPassword, form.email, form.password, isSubmitting])
 
   const updateForm = (key: keyof AccountForm, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }))
     if (message) setMessage(null)
   }
 
-  const handleSubmit = () => {
+  const getProfileInterests = () => {
+    try {
+      const parsed = JSON.parse(profileParams.interests || '[]')
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+
+  const handleSubmit = async () => {
     const validationError = validate(form)
+    const profileInterests = getProfileInterests()
 
     if (validationError) {
       setMessage(validationError)
       return
     }
 
-    router.push('/userProfile')
+    if (!profileParams.fullName || !profileParams.age || profileInterests.length === 0) {
+      setMessage('Please complete your profile first.')
+      return
+    }
+
+    setMessage(null)
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch(`${API_URL}/signup`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          profile: {
+            fullName: profileParams.fullName,
+            age: profileParams.age,
+            schoolOrWork: profileParams.schoolOrWork,
+            bio: profileParams.bio,
+            interests: profileInterests,
+          },
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        setMessage(data.message || 'Could not create account.')
+        return
+      }
+
+      router.replace({
+        pathname: '/userProfile',
+        params: {
+          fullName: data.user.profile.fullName,
+          bio: data.user.profile.bio,
+          interests: JSON.stringify(data.user.profile.interests),
+        },
+      })
+    } catch {
+      setMessage('Network error. Please try again later.')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -100,6 +168,7 @@ export default function CreateAccount() {
               autoComplete="email"
               keyboardType="email-address"
               value={form.email}
+              editable={!isSubmitting}
               onChangeText={(value) => updateForm('email', value)}
             />
 
@@ -110,6 +179,7 @@ export default function CreateAccount() {
               autoComplete="new-password"
               secureTextEntry
               value={form.password}
+              editable={!isSubmitting}
               onChangeText={(value) => updateForm('password', value)}
             />
 
@@ -120,6 +190,7 @@ export default function CreateAccount() {
               autoComplete="new-password"
               secureTextEntry
               value={form.confirmPassword}
+              editable={!isSubmitting}
               onChangeText={(value) => updateForm('confirmPassword', value)}
             />
 
@@ -133,9 +204,15 @@ export default function CreateAccount() {
                 (!canSubmit || pressed) && styles.buttonInactive,
               ]}
               disabled={!canSubmit}
-              onPress={handleSubmit}
+              onPress={() => {
+                void handleSubmit()
+              }}
             >
-              <Text style={styles.primaryButtonText}>Create Account</Text>
+              {isSubmitting ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.primaryButtonText}>Create Account</Text>
+              )}
             </Pressable>
 
             <View style={styles.footerRow}>

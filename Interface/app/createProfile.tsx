@@ -21,6 +21,7 @@ type ProfileForm = {
   bio: string
 }
 
+
 const INTERESTS = [
   'Coffee',
   'Gaming',
@@ -62,8 +63,16 @@ export default function CreateProfile() {
   const [message, setMessage] = useState<string | null>(null)
 
   const canSubmit = useMemo(() => {
-    return form.fullName.trim() !== '' && form.age.trim() !== '' && selectedInterests.length >= 3
-  }, [form.age, form.fullName, selectedInterests.length])
+    return (
+      form.fullName.trim() !== '' &&
+      form.age.trim() !== '' &&
+      selectedInterests.length >= 3
+    )
+  }, [
+    form.age,
+    form.fullName,
+    selectedInterests.length,
+  ])
 
   const updateForm = (key: keyof ProfileForm, value: string) => {
     setForm((prev) => ({ ...prev, [key]: value }))
@@ -89,7 +98,16 @@ export default function CreateProfile() {
       return
     }
 
-    router.push('/createAccount')
+    router.push({
+      pathname: '/createAccount',
+      params: {
+        fullName: form.fullName.trim(),
+        age: form.age.trim(),
+        schoolOrWork: form.schoolOrWork.trim(),
+        bio: form.bio.trim(),
+        interests: JSON.stringify(selectedInterests),
+      },
+    })
   }
 
   return (
@@ -105,9 +123,8 @@ export default function CreateProfile() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.header}>
-            <Text style={styles.brand}>AroundU</Text>
             <Text style={styles.title}>Create Profile</Text>
-            <Text style={styles.subtitle}>Tell people nearby a little about you</Text>
+            <Text style={styles.subtitle}>Set up your Profile</Text>
           </View>
 
           <Pressable
@@ -121,8 +138,9 @@ export default function CreateProfile() {
           </Pressable>
 
           <View style={styles.form}>
+            <Text style={styles.sectionTitle}>Profile</Text>
             <TextInput
-              style={styles.input}
+              style={[styles.input, styles.sectionFirstInput]}
               placeholder="Full name"
               placeholderTextColor="#9ca3af"
               value={form.fullName}
@@ -224,8 +242,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingTop: 24,
     paddingBottom: 32,
-  },
-  header: {
+    },
+    header: {
+        marginTop:22,
     alignItems: 'center',
     marginBottom: 22,
   },
@@ -290,6 +309,9 @@ const styles = StyleSheet.create({
     color: '#111111',
     backgroundColor: '#ffffff',
     marginBottom: 12,
+  },
+  sectionFirstInput: {
+    marginTop: 12,
   },
   bioInput: {
     height: 86,
