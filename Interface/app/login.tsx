@@ -4,13 +4,17 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native'
+import { StatusBar } from 'expo-status-bar'
+import FontAwesome from '@expo/vector-icons/FontAwesome'
 
-import {router} from 'expo-router'
+import { router } from 'expo-router'
 
 const API_URL = 'http://192.168.1.181:8000'
 
@@ -32,8 +36,6 @@ function validate(form: LoginForm): string | null {
 
   return null
 }
-
-
 
 export default function Login() {
   const [form, setForm] = useState<LoginForm>({ email: '', password: '' })
@@ -63,13 +65,13 @@ export default function Login() {
       }
 
       router.replace('/')
-    } catch (error) {
+    } catch (e) {
       setError('Network error. Please try again later.')
     } finally {
       setIsSubmitting(false)
     }
   }
-    
+
   const handleSubmit = async () => {
     setStatusMessage(null)
     const validationError = validate(form)
@@ -81,150 +83,273 @@ export default function Login() {
 
     setError(null)
     setIsSubmitting(true)
-    await new Promise((resolve) => setTimeout(resolve, 900))
 
-    setError(null)
-    setIsSubmitting(false)
-    
+    // small UI delay to show loading indicator
+    await new Promise((resolve) => setTimeout(resolve, 400))
+
     await handleLogin()
   }
 
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={styles.container}
-    >
-      <View style={styles.card}>
-        <Text style={styles.title}>Welcome back</Text>
-        <Text style={styles.subtitle}>Fahhhhh</Text>
-
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Email</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="you@example.com"
-            autoCapitalize="none"
-            autoComplete="email"
-            keyboardType="email-address"
-            value={form.email}
-            editable={!isSubmitting}
-            onChangeText={(value) => {
-              setForm((prev) => ({ ...prev, email: value }))
-              if (error) {
-                setError(null)
-              }
-            }}
-          />
-        </View>
-
-        <View style={styles.fieldGroup}>
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Enter your password"
-            autoComplete="current-password"
-            secureTextEntry
-            value={form.password}
-            editable={!isSubmitting}
-            onChangeText={(value) => {
-              setForm((prev) => ({ ...prev, password: value }))
-              if (error) {
-                setError(null)
-              }
-            }}
-          />
-        </View>
-
-        <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            (!canSubmit || pressed) && styles.buttonDisabled,
-          ]}
-          disabled={!canSubmit}
-          onPress={() => {
-            void handleSubmit()
-          }}
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar style="dark" />
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          keyboardShouldPersistTaps="handled"
+          showsVerticalScrollIndicator={false}
         >
-          {isSubmitting ? (
-            <ActivityIndicator color="#ffffff" />
-          ) : (
-            <Text style={styles.buttonText}>Sign in</Text>
-          )}
-        </Pressable>
+          <View style={styles.header}>
+            <Text style={styles.brand}>AroundU</Text>
+            <Text style={styles.title}>Welcome Back</Text>
+            <Text style={styles.subtitle}>Enter your email to sign in to your account</Text>
+          </View>
 
-        <Text style={[styles.message, error ? styles.errorMessage : null]}>
-          {error ?? statusMessage ?? ' '}
-        </Text>
-      </View>
-    </KeyboardAvoidingView>
+          <View style={styles.form}>
+            <TextInput
+              style={styles.input}
+              placeholder="you@example.com"
+              placeholderTextColor="#9ca3af"
+              autoCapitalize="none"
+              autoComplete="email"
+              keyboardType="email-address"
+              value={form.email}
+              editable={!isSubmitting}
+              onChangeText={(value) => {
+                setForm((prev) => ({ ...prev, email: value }))
+                if (error) setError(null)
+              }}
+            />
+
+            <TextInput
+              style={styles.input}
+              placeholder="Enter your password"
+              placeholderTextColor="#9ca3af"
+              autoComplete="password"
+              secureTextEntry
+              value={form.password}
+              editable={!isSubmitting}
+              onChangeText={(value) => {
+                setForm((prev) => ({ ...prev, password: value }))
+                if (error) setError(null)
+              }}
+            />
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.primaryButton,
+                (!canSubmit || pressed) && styles.buttonInactive,
+              ]}
+              disabled={!canSubmit}
+              onPress={() => {
+                void handleSubmit()
+              }}
+            >
+              {isSubmitting ? (
+                <ActivityIndicator color="#ffffff" />
+              ) : (
+                <Text style={styles.primaryButtonText}>Login</Text>
+              )}
+            </Pressable>
+
+            <View style={styles.dividerRow}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>or</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <Pressable
+              style={({ pressed }) => [styles.socialButton, pressed && styles.buttonInactive]}
+              disabled={isSubmitting}
+              onPress={() => setStatusMessage('Google sign-in is not wired yet.')}
+            >
+              <FontAwesome
+                name="google"
+                size={18}
+                color="#ffffff"
+                style={styles.socialIconSpacing}
+              />
+              <Text style={styles.socialButtonText}>Continue with Google</Text>
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [styles.socialButton, pressed && styles.buttonInactive]}
+              disabled={isSubmitting}
+              onPress={() => setStatusMessage('Apple sign-in is not wired yet.')}
+            >
+              <FontAwesome
+                name="apple"
+                size={20}
+                color="#ffffff"
+                style={styles.socialIconSpacing}
+              />
+              <Text style={styles.socialButtonText}>Continue with Apple</Text>
+            </Pressable>
+
+            <Pressable
+              style={styles.forgotButton}
+              onPress={() => setStatusMessage('Password reset flow not implemented.') }
+            >
+              <Text style={styles.forgotText}>Forgot Password?</Text>
+            </Pressable>
+
+            <Text style={[styles.message, error ? styles.errorMessage : null]}>
+              {error ?? statusMessage ?? ' '}
+            </Text>
+          </View>
+
+          <View style={styles.footerRow}>
+            <Text style={styles.signupText}>Don't have account? </Text>
+            <Pressable onPress={() => router.push('/signup')}>
+              <Text style={styles.signupLink}>Sign Up</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   )
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    justifyContent: 'center',
-    padding: 20,
-  },
-  card: {
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    borderRadius: 12,
-    padding: 20,
     backgroundColor: '#ffffff',
   },
+  container: {
+    flex: 1,
+    backgroundColor: '#ffffff',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+    paddingTop: 24,
+    paddingBottom: 32,
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: 24,
+  },
+  brand: {
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '400',
+    color: '#111111',
+    marginBottom: 20,
+  },
   title: {
-    fontSize: 28,
+    fontSize: 20,
+    lineHeight: 24,
     fontWeight: '700',
-    color: '#0f172a',
+    color: '#111111',
     marginBottom: 8,
   },
   subtitle: {
     fontSize: 16,
-    color: '#475569',
-    marginBottom: 20,
+    lineHeight: 20,
+    color: '#111111',
+    textAlign: 'center',
   },
-  fieldGroup: {
-    marginBottom: 14,
-  },
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    color: '#334155',
-    marginBottom: 6,
+  form: {
+    width: '100%',
+    maxWidth: 327,
+    alignSelf: 'center',
+    marginTop: 12,
   },
   input: {
+    height: 40,
     borderWidth: 1,
-    borderColor: '#cbd5e1',
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
+    borderColor: '#d4d4d8',
+    borderRadius: 9,
+    paddingHorizontal: 14,
     fontSize: 16,
-    color: '#0f172a',
+    color: '#111111',
+    backgroundColor: '#ffffff',
+    marginBottom: 12,
   },
-  button: {
-    marginTop: 8,
-    backgroundColor: '#4f46e5',
-    borderRadius: 8,
-    minHeight: 44,
+  primaryButton: {
+    height: 40,
+    borderRadius: 9,
+    backgroundColor: '#36A7F8',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 2,
   },
-  buttonDisabled: {
-    opacity: 0.7,
-  },
-  buttonText: {
+  primaryButtonText: {
     color: '#ffffff',
     fontSize: 16,
     fontWeight: '600',
   },
+  buttonInactive: {
+    opacity: 0.72,
+  },
+  dividerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 28,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+  dividerText: {
+    marginHorizontal: 12,
+    fontSize: 14,
+    color: '#8a8a8a',
+  },
+  socialButton: {
+    height: 40,
+    borderRadius: 9,
+    backgroundColor: '#36A7F8',
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    paddingHorizontal: 16,
+  },
+  socialIconSpacing: {
+    marginRight: 8,
+  },
+  socialButtonText: {
+    color: '#ffffff',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  forgotButton: {
+    alignItems: 'center',
+  },
+  forgotText: {
+    marginTop: 8,
+    color: '#2563eb',
+    textAlign: 'center',
+    fontWeight: '600',
+  },
   message: {
-    marginTop: 12,
+    marginTop: 14,
     minHeight: 20,
     color: '#0369a1',
     fontSize: 14,
+    textAlign: 'center',
   },
   errorMessage: {
     color: '#b91c1c',
+  },
+  footerRow: {
+    marginTop: 18,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  signupText: {
+    color: '#6b7280',
+  },
+  signupLink: {
+    color: '#2563eb',
+    fontWeight: '700',
+    marginLeft: 4,
   },
 })
