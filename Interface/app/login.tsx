@@ -138,6 +138,10 @@ export default function Login() {
               }}
             />
 
+            <Text style={[styles.message, error ? styles.errorMessage : null]}>
+              {error ?? statusMessage ?? ' '}
+            </Text>
+
             <Pressable
               style={({ pressed }) => [
                 styles.primaryButton,
@@ -195,10 +199,6 @@ export default function Login() {
             >
               <Text style={styles.forgotText}>Forgot Password?</Text>
             </Pressable>
-
-            <Text style={[styles.message, error ? styles.errorMessage : null]}>
-              {error ?? statusMessage ?? ' '}
-            </Text>
           </View>
 
           <View style={styles.footerRow}>
@@ -276,7 +276,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#36A7F8',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 2,
   },
   primaryButtonText: {
     color: '#ffffff',
@@ -329,8 +328,8 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   message: {
-    marginTop: 14,
-    minHeight: 20,
+    marginBottom: 10,
+    minHeight: 18,
     color: '#0369a1',
     fontSize: 14,
     textAlign: 'center',
