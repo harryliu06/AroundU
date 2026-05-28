@@ -42,7 +42,7 @@ function validate(form: ProfileForm, selectedInterests: string[]): string | null
   const age = Number(form.age)
 
   if (!Number.isInteger(age) || age < 16 || age > 100) {
-    return 'Please enter a valid age.'
+    return 'Please enter a valid age. (Need to be at least 16 years old or over)'
   }
 
   if (selectedInterests.length < 3) {
