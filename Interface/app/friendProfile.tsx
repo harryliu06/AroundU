@@ -13,8 +13,6 @@ import { router, useLocalSearchParams } from 'expo-router'
 
 const COVER_IMAGE =
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
-const PROFILE_IMAGE =
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=600&q=80'
 
 const GALLERY_IMAGES = [
   'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
@@ -27,11 +25,27 @@ export default function UserProfile() {
     fullName?: string
     bio?: string
     interests?: string
+    profileImage?: string
   }>()
-  const fullName = params.fullName || 'Harley Quizel'
+  const fullName = params.fullName || 'FULL NAME PLACEHOLDER'
   const bio =
     params.bio ||
-    'Hello, my name is Harley Quizel. I love riding my bikes on Friday evenings and playing guitar over the weekends, making new tracks on my YouTube Channel.'
+    'BIOGRAPHY PLACEHOLDER'
+  const rawProfileImage = params.profileImage?.trim()
+  const profileImage =
+    rawProfileImage &&
+    rawProfileImage !== 'undefined' &&
+    rawProfileImage !== 'null' &&
+    /^(https?:|file:|data:)/.test(rawProfileImage)
+      ? rawProfileImage
+      : null
+  const initials = fullName
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase() || 'AU'
 
   let interests = ['Biking', 'Music', 'YouTube', 'Horror Films', 'Photography']
 
@@ -64,7 +78,11 @@ export default function UserProfile() {
 
         <View style={styles.content}>
           <View style={styles.avatarWrap}>
-            <Image source={{ uri: PROFILE_IMAGE }} style={styles.avatarImage} />
+            {profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarInitials}>{initials}</Text>
+            )}
           </View>
 
           <Text style={styles.name}>{fullName}</Text>
@@ -160,6 +178,8 @@ const styles = StyleSheet.create({
     borderWidth: 4,
     borderColor: '#ffffff',
     backgroundColor: '#e5e7eb',
+    alignItems: 'center',
+    justifyContent: 'center',
     overflow: 'hidden',
     marginTop: -61,
     marginBottom: 12,
@@ -167,6 +187,12 @@ const styles = StyleSheet.create({
   avatarImage: {
     width: '100%',
     height: '100%',
+  },
+  avatarInitials: {
+    color: '#36A7F8',
+    fontSize: 34,
+    lineHeight: 40,
+    fontWeight: '700',
   },
   name: {
     fontSize: 26,
