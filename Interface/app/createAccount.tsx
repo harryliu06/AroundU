@@ -127,8 +127,10 @@ export default function CreateAccount() {
       }
 
       router.replace({
-        pathname: '/userProfile',
+        pathname: '/home',
         params: {
+          userId: String(data.user.id),
+          token: data.token,
           fullName: data.user.profile.fullName,
           bio: data.user.profile.bio,
           interests: JSON.stringify(data.user.profile.interests),
