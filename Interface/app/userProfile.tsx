@@ -88,7 +88,6 @@ export default function UserProfile() {
           <Text style={styles.name}>{fullName}</Text>
           <Text style={styles.meta}>{interests.slice(0, 3).join(', ')}</Text>
 
-
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Bio</Text>
             <Text style={styles.infoText}>{bio}</Text>
@@ -204,17 +203,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 10,
-  },
-  messageButton: {
-    width: '100%',
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: '#36A7F8',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 18,
-    marginBottom: 10,
   },
   primaryActionText: {
     color: '#ffffff',
