@@ -8,10 +8,18 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "AroundU uses your location to share meet-up directions with nearby people."
+      }
     },
     "android": {
-      "package": "com.anonymous.arounduinterface"
+      "package": "com.anonymous.arounduinterface",
+      "softwareKeyboardLayoutMode": "resize",
+      "permissions": [
+        "ACCESS_COARSE_LOCATION",
+        "ACCESS_FINE_LOCATION"
+      ]
     },
     "plugins": []
   }
