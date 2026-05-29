@@ -160,7 +160,7 @@ export default function Home() {
               style={({ pressed }) => [styles.userRow, pressed && styles.buttonInactive]}
               onPress={() =>
                 router.push({
-                  pathname: '/userProfile',
+                  pathname: '/friendProfile',
                   params: {
                     fullName: user.name,
                     interests: JSON.stringify(user.tags),
@@ -182,7 +182,18 @@ export default function Home() {
                 </Text>
               </View>
 
-              <Pressable style={styles.sendButton}>
+              <Pressable
+                style={styles.sendButton}
+                onPress={() =>
+                  router.push({
+                    pathname: '/chat',
+                    params: {
+                      fullName: user.name,
+                      profileImage: user.image,
+                    },
+                  })
+                }
+              >
                 <FontAwesome name="paper-plane-o" size={16} color="#36A7F8" />
               </Pressable>
             </Pressable>
