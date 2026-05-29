@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Image,
   Keyboard,
@@ -51,6 +51,7 @@ export default function Chat() {
   }>()
   const [messageText, setMessageText] = useState('')
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
+  const messagesScrollRef = useRef<ScrollView | null>(null)
 
   const fullName = params.fullName || 'Nearby User'
   const rawProfileImage = params.profileImage?.trim()
@@ -73,6 +74,26 @@ export default function Chat() {
     )
   }, [fullName])
 
+  const scrollToLatestMessage = (animated = true) => {
+    setTimeout(() => {
+      messagesScrollRef.current?.scrollToEnd({ animated })
+    }, 50)
+  }
+
+  useEffect(() => {
+    scrollToLatestMessage()
+  }, [messages.length])
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+      scrollToLatestMessage()
+    })
+
+    return () => {
+      showSubscription.remove()
+    }
+  }, [])
+
   const handleSend = () => {
     const text = messageText.trim()
 
@@ -93,120 +114,123 @@ export default function Chat() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={styles.safeArea}>
-      <StatusBar style="dark" />
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <Pressable
-            style={({ pressed }) => [styles.iconButton, pressed && styles.buttonInactive]}
-            onPress={() => router.back()}
-          >
-            <FontAwesome name="angle-left" size={24} color="#111111" />
-          </Pressable>
-
-          <Pressable
-            style={({ pressed }) => [styles.contact, pressed && styles.buttonInactive]}
-            onPress={() =>
-              router.push({
-                pathname: '/userProfile',
-                params: {
-                  fullName,
-                  ...(profileImage ? { profileImage } : {}),
-                },
-              })
-            }
-          >
-            <View style={styles.avatar}>
-              {profileImage ? (
-                <Image source={{ uri: profileImage }} style={styles.avatarImage} />
-              ) : (
-                <Text style={styles.avatarInitials}>{initials}</Text>
-              )}
-            </View>
-            <View style={styles.contactText}>
-              <Text style={styles.name} numberOfLines={1}>
-                {fullName}
-              </Text>
-              <Text style={styles.status}>Active nearby</Text>
-            </View>
-          </Pressable>
-
-          <Pressable style={({ pressed }) => [styles.iconButton, pressed && styles.buttonInactive]}>
-            <FontAwesome name="ellipsis-v" size={18} color="#111111" />
-          </Pressable>
-        </View>
-
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={styles.keyboardArea}
-        >
-          <ScrollView
-            style={styles.messages}
-            contentContainerStyle={styles.messagesContent}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            <Text style={styles.dayLabel}>Today</Text>
-
-            {messages.map((message) => {
-              const isMine = message.sender === 'me'
-
-              return (
-                <View
-                  key={message.id}
-                  style={[
-                    styles.messageRow,
-                    isMine ? styles.myMessageRow : styles.theirMessageRow,
-                  ]}
-                >
-                  {!isMine ? (
-                    <View style={styles.smallAvatar}>
-                      {profileImage ? (
-                        <Image source={{ uri: profileImage }} style={styles.smallAvatarImage} />
-                      ) : (
-                        <Text style={styles.smallAvatarInitials}>{initials}</Text>
-                      )}
-                    </View>
-                  ) : null}
-
-                  <View style={[styles.bubble, isMine ? styles.myBubble : styles.theirBubble]}>
-                    <Text style={[styles.messageText, isMine && styles.myMessageText]}>
-                      {message.text}
-                    </Text>
-                    <Text style={[styles.messageTime, isMine && styles.myMessageTime]}>
-                      {message.time}
-                    </Text>
-                  </View>
-                </View>
-              )
-            })}
-          </ScrollView>
-
-          <View style={styles.composer}>
-            <Pressable style={styles.composerIcon}>
-              <FontAwesome name="plus" size={15} color="#36A7F8" />
-            </Pressable>
-            <TextInput
-              style={styles.input}
-              placeholder="Message"
-              placeholderTextColor="#9ca3af"
-              value={messageText}
-              onChangeText={setMessageText}
-              returnKeyType="send"
-              onSubmitEditing={handleSend}
-            />
+        <StatusBar style="dark" />
+        <View style={styles.container}>
+          <View style={styles.header}>
             <Pressable
-              style={({ pressed }) => [
-                styles.sendButton,
-                (!messageText.trim() || pressed) && styles.buttonInactive,
-              ]}
-              disabled={!messageText.trim()}
-              onPress={handleSend}
+              style={({ pressed }) => [styles.iconButton, pressed && styles.buttonInactive]}
+              onPress={() => router.back()}
             >
-              <FontAwesome name="paper-plane" size={15} color="#ffffff" />
+              <FontAwesome name="angle-left" size={24} color="#111111" />
+            </Pressable>
+
+            <Pressable
+              style={({ pressed }) => [styles.contact, pressed && styles.buttonInactive]}
+              onPress={() =>
+                router.push({
+                  pathname: '/userProfile',
+                  params: {
+                    fullName,
+                    ...(profileImage ? { profileImage } : {}),
+                  },
+                })
+              }
+            >
+              <View style={styles.avatar}>
+                {profileImage ? (
+                  <Image source={{ uri: profileImage }} style={styles.avatarImage} />
+                ) : (
+                  <Text style={styles.avatarInitials}>{initials}</Text>
+                )}
+              </View>
+              <View style={styles.contactText}>
+                <Text style={styles.name} numberOfLines={1}>
+                  {fullName}
+                </Text>
+                <Text style={styles.status}>Active nearby</Text>
+              </View>
+            </Pressable>
+
+            <Pressable style={({ pressed }) => [styles.iconButton, pressed && styles.buttonInactive]}>
+              <FontAwesome name="ellipsis-v" size={18} color="#111111" />
             </Pressable>
           </View>
-        </KeyboardAvoidingView>
-      </View>
+
+          <KeyboardAvoidingView
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={styles.keyboardArea}
+          >
+            <ScrollView
+              ref={messagesScrollRef}
+              style={styles.messages}
+              contentContainerStyle={styles.messagesContent}
+              keyboardShouldPersistTaps="handled"
+              showsVerticalScrollIndicator={false}
+              onContentSizeChange={() => scrollToLatestMessage(false)}
+            >
+              <Text style={styles.dayLabel}>Today</Text>
+
+              {messages.map((message) => {
+                const isMine = message.sender === 'me'
+
+                return (
+                  <View
+                    key={message.id}
+                    style={[
+                      styles.messageRow,
+                      isMine ? styles.myMessageRow : styles.theirMessageRow,
+                    ]}
+                  >
+                    {!isMine ? (
+                      <View style={styles.smallAvatar}>
+                        {profileImage ? (
+                          <Image source={{ uri: profileImage }} style={styles.smallAvatarImage} />
+                        ) : (
+                          <Text style={styles.smallAvatarInitials}>{initials}</Text>
+                        )}
+                      </View>
+                    ) : null}
+
+                    <View style={[styles.bubble, isMine ? styles.myBubble : styles.theirBubble]}>
+                      <Text style={[styles.messageText, isMine && styles.myMessageText]}>
+                        {message.text}
+                      </Text>
+                      <Text style={[styles.messageTime, isMine && styles.myMessageTime]}>
+                        {message.time}
+                      </Text>
+                    </View>
+                  </View>
+                )
+              })}
+            </ScrollView>
+
+            <View style={styles.composer}>
+              <Pressable style={styles.composerIcon}>
+                <FontAwesome name="plus" size={15} color="#36A7F8" />
+              </Pressable>
+              <TextInput
+                style={styles.input}
+                placeholder="Message"
+                placeholderTextColor="#9ca3af"
+                value={messageText}
+                onChangeText={setMessageText}
+                onFocus={() => scrollToLatestMessage()}
+                returnKeyType="send"
+                onSubmitEditing={handleSend}
+              />
+              <Pressable
+                style={({ pressed }) => [
+                  styles.sendButton,
+                  (!messageText.trim() || pressed) && styles.buttonInactive,
+                ]}
+                disabled={!messageText.trim()}
+                onPress={handleSend}
+              >
+                <FontAwesome name="paper-plane" size={15} color="#ffffff" />
+              </Pressable>
+            </View>
+          </KeyboardAvoidingView>
+        </View>
       </View>
     </TouchableWithoutFeedback>
   )
