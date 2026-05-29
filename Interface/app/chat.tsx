@@ -44,6 +44,30 @@ const INITIAL_MESSAGES: Message[] = [
   },
 ]
 
+const MEETUP_OPTIONS = [
+  {
+    id: 'directions',
+    icon: 'map-signs',
+    title: 'Meet-up directions',
+    action: 'directions',
+    message: 'I will come to your location. Can you share your location so I can find you?',
+  },
+  {
+    id: 'location',
+    icon: 'location-arrow',
+    title: 'Share location',
+    action: 'location',
+    message: 'I can share my current location for the meet-up.',
+  },
+  {
+    id: 'spot',
+    icon: 'coffee',
+    title: 'Suggest a spot',
+    action: 'message',
+    message: 'Want to meet at a nearby coffee spot?',
+  },
+] as const
+
 export default function Chat() {
   const params = useLocalSearchParams<{
     fullName?: string
@@ -51,6 +75,7 @@ export default function Chat() {
   }>()
   const [messageText, setMessageText] = useState('')
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
+  const [isOptionsOpen, setIsOptionsOpen] = useState(false)
   const messagesScrollRef = useRef<ScrollView | null>(null)
 
   const fullName = params.fullName || 'Nearby User'
@@ -109,6 +134,38 @@ export default function Chat() {
       },
     ])
     setMessageText('')
+    setIsOptionsOpen(false)
+  }
+
+  const sendChatMessage = (text: string) => {
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: prev.length + 1,
+        sender: 'me',
+        text,
+        time: 'Now',
+      },
+    ])
+  }
+
+  const handleMeetupOption = async (option: (typeof MEETUP_OPTIONS)[number]) => {
+    if (option.action === 'directions') {
+      setIsOptionsOpen(false)
+      Keyboard.dismiss()
+      router.push({
+        pathname: '/meetupDirections',
+        params: {
+          fullName,
+          ...(profileImage ? { profileImage } : {}),
+        },
+      })
+      return
+    }
+
+    sendChatMessage(option.message)
+    setIsOptionsOpen(false)
+    Keyboard.dismiss()
   }
 
   return (
@@ -204,8 +261,34 @@ export default function Chat() {
               })}
             </ScrollView>
 
+            {isOptionsOpen ? (
+              <View style={styles.optionsBox}>
+                {MEETUP_OPTIONS.map((option) => (
+                  <Pressable
+                    key={option.id}
+                    style={({ pressed }) => [styles.optionRow, pressed && styles.buttonInactive]}
+                    onPress={() => {
+                      void handleMeetupOption(option)
+                    }}
+                  >
+                    <View style={styles.optionIcon}>
+                      <FontAwesome name={option.icon} size={15} color="#36A7F8" />
+                    </View>
+                    <Text style={styles.optionText}>{option.title}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : null}
+
             <View style={styles.composer}>
-              <Pressable style={styles.composerIcon}>
+              <Pressable
+                style={({ pressed }) => [
+                  styles.composerIcon,
+                  isOptionsOpen && styles.composerIconActive,
+                  pressed && styles.buttonInactive,
+                ]}
+                onPress={() => setIsOptionsOpen((prev) => !prev)}
+              >
                 <FontAwesome name="plus" size={15} color="#36A7F8" />
               </Pressable>
               <TextInput
@@ -213,8 +296,14 @@ export default function Chat() {
                 placeholder="Message"
                 placeholderTextColor="#9ca3af"
                 value={messageText}
-                onChangeText={setMessageText}
-                onFocus={() => scrollToLatestMessage()}
+                onChangeText={(value) => {
+                  setMessageText(value)
+                  if (isOptionsOpen) setIsOptionsOpen(false)
+                }}
+                onFocus={() => {
+                  setIsOptionsOpen(false)
+                  scrollToLatestMessage()
+                }}
                 returnKeyType="send"
                 onSubmitEditing={handleSend}
               />
@@ -398,6 +487,36 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     backgroundColor: '#ffffff',
   },
+  optionsBox: {
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
+    paddingTop: 10,
+    paddingBottom: 4,
+  },
+  optionRow: {
+    height: 44,
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  optionIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#f0f9ff',
+    borderWidth: 1,
+    borderColor: '#bae6fd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 10,
+  },
+  optionText: {
+    color: '#111111',
+    fontSize: 15,
+    lineHeight: 20,
+    fontWeight: '600',
+  },
   composerIcon: {
     width: 36,
     height: 36,
@@ -408,6 +527,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 10,
+  },
+  composerIconActive: {
+    backgroundColor: '#e0f2fe',
+    borderColor: '#36A7F8',
   },
   input: {
     flex: 1,
