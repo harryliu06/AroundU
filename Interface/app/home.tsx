@@ -86,6 +86,20 @@ export default function Home() {
     })
   }
 
+  const openSettings = () => {
+    router.push({
+      pathname: '/settings',
+      params: {
+        userId: currentUser.userId,
+        token: currentUser.token,
+        fullName: currentUser.fullName,
+        bio: currentUser.bio,
+        interests: currentUser.interests,
+        ...(currentUser.profileImage ? { profileImage: currentUser.profileImage } : {}),
+      },
+    })
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -96,7 +110,10 @@ export default function Home() {
         <View style={styles.topBar}>
           <Text style={styles.brand}>AroundU</Text>
           <View style={styles.topBarActions}>
-            <Pressable style={({ pressed }) => [styles.topBarButton, pressed && styles.buttonInactive]}>
+            <Pressable
+              style={({ pressed }) => [styles.topBarButton, pressed && styles.buttonInactive]}
+              onPress={openSettings}
+            >
               <FontAwesome name="gear" size={18} color="#111111" />
             </Pressable>
             <Pressable
