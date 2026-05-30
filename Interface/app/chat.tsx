@@ -25,27 +25,6 @@ type Message = {
   sender: 'me' | 'them'
 }
 
-const INITIAL_MESSAGES: Message[] = [
-  {
-    id: '1',
-    sender: 'them',
-    text: 'Hey, I saw we both like music and coffee.',
-    time: '9:41 AM',
-  },
-  {
-    id: '2',
-    sender: 'me',
-    text: 'Nice. I am always down to find a good coffee spot nearby.',
-    time: '9:42 AM',
-  },
-  {
-    id: '3',
-    sender: 'them',
-    text: 'There is a cafe near campus that usually has live music on Fridays.',
-    time: '9:44 AM',
-  },
-]
-
 const MEETUP_OPTIONS = [
   {
     id: 'directions',
@@ -78,7 +57,7 @@ export default function Chat() {
     token?: string
   }>()
   const [messageText, setMessageText] = useState('')
-  const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
+  const [messages, setMessages] = useState<Message[]>([])
   const [isOptionsOpen, setIsOptionsOpen] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const messagesScrollRef = useRef<ScrollView | null>(null)

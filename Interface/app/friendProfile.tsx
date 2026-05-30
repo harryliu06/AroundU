@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
   Image,
@@ -22,6 +22,8 @@ const GALLERY_IMAGES = [
   'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=400&q=80',
 ]
 
+type FriendStatus = 'none' | 'pending' | 'accepted'
+
 export default function UserProfile() {
   const params = useLocalSearchParams<{
     userId?: string
@@ -30,9 +32,16 @@ export default function UserProfile() {
     bio?: string
     interests?: string
     profileImage?: string
+    friendStatus?: FriendStatus
   }>()
   const [friendMessage, setFriendMessage] = useState<string | null>(null)
   const [isAddingFriend, setIsAddingFriend] = useState(false)
+  const [friendStatus, setFriendStatus] = useState<FriendStatus>(
+    params.friendStatus === 'accepted' || params.friendStatus === 'pending'
+      ? params.friendStatus
+      : 'none'
+  )
+  const [isCheckingStatus, setIsCheckingStatus] = useState(false)
   const fullName = params.fullName || 'FULL NAME PLACEHOLDER'
   const bio =
     params.bio ||
@@ -65,11 +74,50 @@ export default function UserProfile() {
     interests = ['Biking', 'Music', 'YouTube', 'Horror Films', 'Photography']
   }
 
+  useEffect(() => {
+    const loadFriendStatus = async () => {
+      if (!params.userId || !params.token) return
+
+      setIsCheckingStatus(true)
+
+      try {
+        const response = await fetch(
+          `http://192.168.1.181:8000/friends/${params.userId}/status`,
+          {
+            headers: {
+              Authorization: `Bearer ${params.token}`,
+            },
+          }
+        )
+        const data = await response.json()
+
+        if (response.ok && ['none', 'pending', 'accepted'].includes(data.status)) {
+          setFriendStatus(data.status)
+        }
+      } finally {
+        setIsCheckingStatus(false)
+      }
+    }
+
+    void loadFriendStatus()
+  }, [params.token, params.userId])
+
+  const friendButtonLabel =
+    friendStatus === 'accepted'
+      ? 'Friends'
+      : friendStatus === 'pending'
+        ? 'Requested'
+        : 'Add Friend'
+  const friendButtonIcon =
+    friendStatus === 'accepted' ? 'check' : friendStatus === 'pending' ? 'clock-o' : 'user-plus'
+
   const handleAddFriend = async () => {
     if (!params.userId || !params.token) {
       setFriendMessage('Friend data is missing.')
       return
     }
+
+    if (friendStatus !== 'none') return
 
     setIsAddingFriend(true)
     setFriendMessage(null)
@@ -88,7 +136,8 @@ export default function UserProfile() {
         return
       }
 
-      setFriendMessage('Friend added. Chat history will now be saved.')
+      setFriendMessage(data.message || 'Friend request sent.')
+      setFriendStatus(data.friendship?.status === 'accepted' ? 'accepted' : 'pending')
     } catch {
       setFriendMessage('Network error. Please try again later.')
     } finally {
@@ -128,17 +177,22 @@ export default function UserProfile() {
           <View style={styles.actionRow}>
             <Pressable
               style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonInactive]}
-              disabled={isAddingFriend}
+              disabled={isAddingFriend || isCheckingStatus || friendStatus !== 'none'}
               onPress={() => {
                 void handleAddFriend()
               }}
             >
-              {isAddingFriend ? (
+              {isAddingFriend || isCheckingStatus ? (
                 <ActivityIndicator color="#2563eb" />
               ) : (
                 <>
-                  <FontAwesome name="user-plus" size={15} color="#2563eb" style={styles.buttonIcon} />
-                  <Text style={styles.secondaryButtonText}>Add Friend</Text>
+                  <FontAwesome
+                    name={friendButtonIcon}
+                    size={15}
+                    color="#2563eb"
+                    style={styles.buttonIcon}
+                  />
+                  <Text style={styles.secondaryButtonText}>{friendButtonLabel}</Text>
                 </>
               )}
             </Pressable>
@@ -155,7 +209,10 @@ export default function UserProfile() {
             <Text
               style={[
                 styles.friendMessage,
-                friendMessage.includes('added') && styles.friendSuccess,
+                (friendMessage.includes('sent') ||
+                  friendMessage.includes('already') ||
+                  friendMessage.includes('request')) &&
+                  styles.friendSuccess,
               ]}
             >
               {friendMessage}
