@@ -25,18 +25,6 @@ type ProfileForm = {
   bio: string
 }
 
-const INTERESTS = [
-  'Coffee',
-  'Gaming',
-  'Fitness',
-  'Music',
-  'Movies',
-  'Study',
-  'Food',
-  'Sports',
-  'Art',
-]
-
 function validate(form: ProfileForm, selectedInterests: string[]): string | null {
   if (!form.fullName.trim() || !form.age.trim()) {
     return 'Name and age are required.'
@@ -63,6 +51,7 @@ export default function EditProfile() {
     bio: '',
   })
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
+  const [interestInput, setInterestInput] = useState('')
   const [token, setToken] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -105,14 +94,30 @@ export default function EditProfile() {
     if (message) setMessage(null)
   }
 
-  const toggleInterest = (interest: string) => {
+  const addInterest = () => {
+    const nextInterest = interestInput.trim()
+
+    if (!nextInterest) {
+      return
+    }
+
     setSelectedInterests((prev) => {
-      if (prev.includes(interest)) {
-        return prev.filter((item) => item !== interest)
+      const alreadyAdded = prev.some(
+        (interest) => interest.toLowerCase() === nextInterest.toLowerCase()
+      )
+
+      if (alreadyAdded) {
+        return prev
       }
 
-      return [...prev, interest]
+      return [...prev, nextInterest]
     })
+    setInterestInput('')
+    if (message) setMessage(null)
+  }
+
+  const removeInterest = (interest: string) => {
+    setSelectedInterests((prev) => prev.filter((item) => item !== interest))
     if (message) setMessage(null)
   }
 
@@ -258,32 +263,45 @@ export default function EditProfile() {
               <Text style={styles.sectionHint}>{selectedInterests.length}/3 minimum</Text>
             </View>
 
-            <View style={styles.interestGrid}>
-              {INTERESTS.map((interest) => {
-                const isSelected = selectedInterests.includes(interest)
+            <View style={styles.interestInputRow}>
+              <TextInput
+                style={[styles.input, styles.interestInput]}
+                placeholder="Add an interest"
+                placeholderTextColor="#9ca3af"
+                autoCapitalize="words"
+                returnKeyType="done"
+                value={interestInput}
+                editable={!isSubmitting}
+                onChangeText={setInterestInput}
+                onSubmitEditing={addInterest}
+              />
+              <Pressable
+                style={({ pressed }) => [
+                  styles.addInterestButton,
+                  (!interestInput.trim() || pressed) && styles.buttonInactive,
+                ]}
+                disabled={!interestInput.trim() || isSubmitting}
+                onPress={addInterest}
+              >
+                <FontAwesome name="plus" size={14} color="#ffffff" />
+              </Pressable>
+            </View>
 
-                return (
-                  <Pressable
-                    key={interest}
-                    style={({ pressed }) => [
-                      styles.interestChip,
-                      isSelected && styles.interestChipSelected,
-                      pressed && styles.buttonInactive,
-                    ]}
-                    disabled={isSubmitting}
-                    onPress={() => toggleInterest(interest)}
-                  >
-                    <Text
-                      style={[
-                        styles.interestText,
-                        isSelected && styles.interestTextSelected,
-                      ]}
-                    >
-                      {interest}
-                    </Text>
-                  </Pressable>
-                )
-              })}
+            <View style={styles.interestGrid}>
+              {selectedInterests.map((interest) => (
+                <Pressable
+                  key={interest}
+                  style={({ pressed }) => [
+                    styles.interestChip,
+                    pressed && styles.buttonInactive,
+                  ]}
+                  disabled={isSubmitting}
+                  onPress={() => removeInterest(interest)}
+                >
+                  <Text style={styles.interestText}>{interest}</Text>
+                  <FontAwesome name="times" size={12} color="#0369a1" />
+                </Pressable>
+              ))}
             </View>
 
             <Text style={[styles.message, message ? styles.errorMessage : null]}>
@@ -435,31 +453,44 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
     marginHorizontal: -4,
   },
+  interestInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  interestInput: {
+    flex: 1,
+    marginBottom: 0,
+    marginRight: 10,
+  },
+  addInterestButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 9,
+    backgroundColor: '#36A7F8',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   interestChip: {
-    minWidth: 92,
+    minHeight: 36,
     height: 36,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#d4d4d8',
-    backgroundColor: '#ffffff',
+    borderColor: '#bae6fd',
+    backgroundColor: '#f0f9ff',
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     marginHorizontal: 4,
     marginBottom: 8,
     paddingHorizontal: 12,
   },
-  interestChipSelected: {
-    borderColor: '#36A7F8',
-    backgroundColor: '#36A7F8',
-  },
   interestText: {
     fontSize: 14,
     lineHeight: 18,
     fontWeight: '600',
-    color: '#111111',
-  },
-  interestTextSelected: {
-    color: '#ffffff',
+    color: '#0369a1',
+    marginRight: 7,
   },
   message: {
     marginTop: 4,

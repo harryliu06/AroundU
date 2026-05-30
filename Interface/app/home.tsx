@@ -79,22 +79,31 @@ export default function Home() {
 
         const users = Array.isArray(data.users) ? data.users : []
         setNearbyUsers(
-          users.map((user: any) => ({
-            id: String(user.id),
-            name: user.profile?.fullName || 'AroundU User',
-            tags: Array.isArray(user.profile?.interests) ? user.profile.interests : [],
-            distance: Number(user.distance ?? 0),
-            image: user.profile?.profileImage || undefined,
-            bio:
-              user.profile?.bio ||
-              `${user.profile?.fullName || 'This user'} is nearby and looking to meet people with similar interests.`,
-            friendStatus:
-              user.friendStatus === 'accepted' || user.friendStatus === 'pending'
-                ? user.friendStatus
-                : 'none',
-          }))
+          users.map((user: any) => {
+            const profileInterests = Array.isArray(user.profile?.interests)
+              ? user.profile.interests
+              : []
+            const sharedInterests = Array.isArray(user.sharedInterests)
+              ? user.sharedInterests
+              : []
+
+            return {
+              id: String(user.id),
+              name: user.profile?.fullName || 'AroundU User',
+              tags: sharedInterests.length ? sharedInterests : profileInterests,
+              distance: Number(user.distance ?? 0),
+              image: user.profile?.profileImage || undefined,
+              bio:
+                user.profile?.bio ||
+                `${user.profile?.fullName || 'This user'} is nearby and looking to meet people with similar interests.`,
+              friendStatus:
+                user.friendStatus === 'accepted' || user.friendStatus === 'pending'
+                  ? user.friendStatus
+                  : 'none',
+            }
+          })
         )
-        setNearbyMessage(users.length ? '' : 'No other users found yet.')
+        setNearbyMessage(users.length ? '' : 'No nearby users share your interests yet.')
       } catch {
         setNearbyMessage('Network error loading nearby users.')
       }

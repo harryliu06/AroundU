@@ -11,6 +11,21 @@ function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase()
 }
 
+function normalizeInterests(interests) {
+  if (!Array.isArray(interests)) {
+    return []
+  }
+
+  const normalized = interests
+    .map((interest) => String(interest).trim())
+    .filter(Boolean)
+
+  return normalized.filter((interest, index) => {
+    const lowerInterest = interest.toLowerCase()
+    return normalized.findIndex((item) => item.toLowerCase() === lowerInterest) === index
+  })
+}
+
 function getPublicUser(user) {
   return {
     id: user.id,
@@ -32,12 +47,14 @@ function buildAuthResponse(message, user) {
 }
 
 function validateProfile(profile) {
+  const interests = normalizeInterests(profile?.interests)
+
   return Boolean(
     profile &&
       String(profile.fullName || '').trim() &&
       profile.age !== undefined &&
       profile.age !== null &&
-      Array.isArray(profile.interests)
+      interests.length >= 3
   )
 }
 
@@ -62,6 +79,8 @@ export async function signupUser({ email, password, profile }) {
     return { status: 400, body: { message: 'Profile information is required.' } }
   }
 
+  const interests = normalizeInterests(profile.interests)
+
   const user = await User.create({
     email: normalizedEmail,
     password: await bcrypt.hash(password, 10),
@@ -70,7 +89,7 @@ export async function signupUser({ email, password, profile }) {
       age: Number(profile.age),
       schoolOrWork: String(profile.schoolOrWork || '').trim(),
       bio: String(profile.bio || '').trim(),
-      interests: profile.interests.map((interest) => String(interest)).filter(Boolean),
+      interests,
       profileImage: String(profile.profileImage || '').trim(),
     },
   })
@@ -162,6 +181,8 @@ export async function updateUserProfileByToken(authorizationHeader, profile) {
     return { status: 400, body: { message: 'Please enter a valid age.' } }
   }
 
+  const interests = normalizeInterests(profile.interests)
+
   try {
     const payload = jwt.verify(token, JWT_SECRET)
     const user = await User.findByIdAndUpdate(
@@ -172,7 +193,7 @@ export async function updateUserProfileByToken(authorizationHeader, profile) {
           age,
           schoolOrWork: String(profile.schoolOrWork || '').trim(),
           bio: String(profile.bio || '').trim(),
-          interests: profile.interests.map((interest) => String(interest)).filter(Boolean),
+          interests,
           profileImage: String(profile.profileImage || '').trim(),
         },
       },
@@ -198,18 +219,22 @@ export async function updateUserProfileByToken(authorizationHeader, profile) {
 export async function listNearbyUsersByToken(authorizationHeader) {
   const token = String(authorizationHeader || '').replace(/^Bearer\s+/i, '').trim()
   let currentUserId = null
+  let currentInterests = []
 
   if (token) {
     try {
       const payload = jwt.verify(token, JWT_SECRET)
       currentUserId = payload.id
+      const currentUser = await User.findById(currentUserId)
+      currentInterests = normalizeInterests(currentUser?.profile?.interests)
     } catch {
       currentUserId = null
+      currentInterests = []
     }
   }
 
   const query = currentUserId ? { _id: { $ne: currentUserId } } : {}
-  const users = await User.find(query).sort({ updatedAt: -1 }).limit(20)
+  const users = await User.find(query).sort({ updatedAt: -1 }).limit(100)
   const friendships = currentUserId
     ? await Friendship.find({
         $or: [{ requester: currentUserId }, { recipient: currentUserId }],
@@ -229,11 +254,31 @@ export async function listNearbyUsersByToken(authorizationHeader) {
   return {
     status: 200,
     body: {
-      users: users.map((user, index) => ({
-        ...getPublicUser(user),
-        distance: Number((2.4 + index * 0.4).toFixed(1)),
-        friendStatus: friendshipByUserId.get(String(user.id)) || 'none',
-      })),
+      users: users
+        .map((user) => {
+          const userInterests = normalizeInterests(user.profile?.interests)
+          const sharedInterests = currentInterests.length
+            ? userInterests.filter((interest) =>
+                currentInterests.some(
+                  (currentInterest) => currentInterest.toLowerCase() === interest.toLowerCase()
+                )
+              )
+            : []
+
+          return {
+            ...getPublicUser(user),
+            sharedInterests,
+            matchScore: sharedInterests.length,
+            friendStatus: friendshipByUserId.get(String(user.id)) || 'none',
+          }
+        })
+        .filter((user) => !currentInterests.length || user.sharedInterests.length > 0)
+        .sort((firstUser, secondUser) => secondUser.matchScore - firstUser.matchScore)
+        .slice(0, 20)
+        .map((user, index) => ({
+          ...user,
+          distance: Number((2.4 + index * 0.4).toFixed(1)),
+        })),
     },
   }
 }
