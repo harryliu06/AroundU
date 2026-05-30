@@ -53,6 +53,10 @@ export default function Settings() {
     router.replace('/login')
   }
 
+  const openEditProfile = () => {
+    router.push('/editProfile')
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -83,7 +87,12 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Account</Text>
           <View style={styles.panel}>
-            <SettingRow icon="user-o" title="Profile" value="View and edit profile" />
+            <SettingRow
+              icon="user-o"
+              title="Profile"
+              value="View and edit profile"
+              onPress={openEditProfile}
+            />
             <SettingRow icon="bell-o" title="Notifications" value="Meet-up and message alerts" />
             <SettingRow icon="map-marker" title="Location" value="Nearby discovery settings" />
           </View>

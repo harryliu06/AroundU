@@ -1,4 +1,10 @@
-import { getUserById, getUserByToken, loginUser, signupUser } from '../logic/userLogic.js'
+import {
+  getUserById,
+  getUserByToken,
+  loginUser,
+  signupUser,
+  updateUserProfileByToken,
+} from '../logic/userLogic.js'
 
 export async function signup(req, res) {
   try {
@@ -41,6 +47,17 @@ export async function getCurrentUser(req, res) {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error while fetching current user.' })
+  }
+}
+
+export async function updateCurrentUser(req, res) {
+  try {
+    const result = await updateUserProfileByToken(req.headers.authorization, req.body.profile ?? req.body)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while updating profile.' })
   }
 }
 

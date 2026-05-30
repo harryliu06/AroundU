@@ -8,6 +8,8 @@ export type StoredUser = {
   email?: string
   profile?: {
     fullName?: string
+    age?: number
+    schoolOrWork?: string
     bio?: string
     interests?: string[]
     profileImage?: string

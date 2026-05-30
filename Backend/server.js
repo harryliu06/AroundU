@@ -3,7 +3,14 @@ import cors from 'cors';
 import 'dotenv/config'
 import { connectToDatabase } from './database/db.js'
 
-import { getCurrentUser, getUser, login, signup, nearbyUsers } from './controllers/userController.js';
+import {
+    getCurrentUser,
+    getUser,
+    login,
+    signup,
+    nearbyUsers,
+    updateCurrentUser,
+} from './controllers/userController.js';
 
 const app = express();
 app.use(express.json());
@@ -17,6 +24,7 @@ app.get('/', (req, res) => {
 app.post('/signup', signup);
 app.post('/login', login);
 app.get('/me', getCurrentUser);
+app.patch('/me', updateCurrentUser);
 app.get('/users/:id', getUser);
 app.get('/nearby-users', nearbyUsers);
 

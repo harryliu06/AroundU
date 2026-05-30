@@ -31,7 +31,13 @@ function buildAuthResponse(message, user) {
 }
 
 function validateProfile(profile) {
-  return Boolean(profile?.fullName && profile?.age && Array.isArray(profile?.interests))
+  return Boolean(
+    profile &&
+      String(profile.fullName || '').trim() &&
+      profile.age !== undefined &&
+      profile.age !== null &&
+      Array.isArray(profile.interests)
+  )
 }
 
 export async function signupUser({ email, password, profile }) {
@@ -129,6 +135,59 @@ export async function getUserByToken(authorizationHeader) {
     return {
       status: 200,
       body: { user: getPublicUser(user) },
+    }
+  } catch (error) {
+    return {
+      status: 401,
+      body: { message: 'Invalid or expired token.', detail: error.message },
+    }
+  }
+}
+
+export async function updateUserProfileByToken(authorizationHeader, profile) {
+  const token = String(authorizationHeader || '').replace(/^Bearer\s+/i, '').trim()
+
+  if (!token) {
+    return { status: 401, body: { message: 'Authorization token is required.' } }
+  }
+
+  if (!validateProfile(profile)) {
+    return { status: 400, body: { message: 'Profile information is required.' } }
+  }
+
+  const age = Number(profile.age)
+
+  if (!Number.isInteger(age) || age < 16 || age > 100) {
+    return { status: 400, body: { message: 'Please enter a valid age.' } }
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET)
+    const user = await User.findByIdAndUpdate(
+      payload.id,
+      {
+        profile: {
+          fullName: String(profile.fullName).trim(),
+          age,
+          schoolOrWork: String(profile.schoolOrWork || '').trim(),
+          bio: String(profile.bio || '').trim(),
+          interests: profile.interests.map((interest) => String(interest)).filter(Boolean),
+          profileImage: String(profile.profileImage || '').trim(),
+        },
+      },
+      { new: true, runValidators: true }
+    )
+
+    if (!user) {
+      return { status: 404, body: { message: 'User not found.' } }
+    }
+
+    return {
+      status: 200,
+      body: {
+        message: 'Profile updated successfully',
+        user: getPublicUser(user),
+      },
     }
   } catch {
     return { status: 401, body: { message: 'Invalid or expired token.' } }
