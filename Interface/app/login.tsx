@@ -15,6 +15,7 @@ import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 
 import { router } from 'expo-router'
+import { getHomeParams, saveAuthSession } from '../utils/authStorage'
 
 const API_URL = 'http://192.168.1.181:8000'
 
@@ -65,17 +66,11 @@ export default function Login() {
       }
 
       const profileImage = data.user?.profile?.profileImage
+      await saveAuthSession(data.token, data.user)
 
       router.replace({
         pathname: '/home',
-        params: {
-          userId: String(data.user?.id ?? ''),
-          token: data.token,
-          fullName: data.user?.profile?.fullName,
-          bio: data.user?.profile?.bio,
-          interests: JSON.stringify(data.user?.profile?.interests ?? []),
-          ...(profileImage ? { profileImage } : {}),
-        },
+        params: getHomeParams(data.token, data.user),
       })
     } catch (e) {
       setError('Network error. Please try again later.')

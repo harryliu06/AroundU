@@ -1,7 +1,72 @@
-import { Redirect } from 'expo-router'
+import { useEffect, useState } from 'react'
+import { ActivityIndicator, SafeAreaView, StyleSheet } from 'react-native'
+import { router } from 'expo-router'
+import {
+  clearAuthSession,
+  getAuthSession,
+  getHomeParams,
+  saveAuthSession,
+} from '../utils/authStorage'
+
+const API_URL = 'http://192.168.1.181:8000'
 
 export default function Index() {
-  const isLoggedIn = false
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
-  return <Redirect href={isLoggedIn ? '/home' : '/login'} />
+  useEffect(() => {
+    const checkAuth = async () => {
+      const session = await getAuthSession()
+
+      if (!session) {
+        router.replace('/login')
+        setIsCheckingAuth(false)
+        return
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/me`, {
+          headers: {
+            Authorization: `Bearer ${session.token}`,
+          },
+        })
+        const data = await response.json()
+
+        if (!response.ok) {
+          await clearAuthSession()
+          router.replace('/login')
+          return
+        }
+
+        await saveAuthSession(session.token, data.user)
+        router.replace({
+          pathname: '/home',
+          params: getHomeParams(session.token, data.user),
+        })
+      } catch {
+        router.replace({
+          pathname: '/home',
+          params: getHomeParams(session.token, session.user),
+        })
+      } finally {
+        setIsCheckingAuth(false)
+      }
+    }
+
+    void checkAuth()
+  }, [])
+
+  return (
+    <SafeAreaView style={styles.safeArea}>
+      {isCheckingAuth ? <ActivityIndicator color="#36A7F8" /> : null}
+    </SafeAreaView>
+  )
 }
+
+const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#ffffff',
+  },
+})

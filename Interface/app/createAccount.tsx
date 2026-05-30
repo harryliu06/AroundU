@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { router, useLocalSearchParams } from 'expo-router'
+import { getHomeParams, saveAuthSession } from '../utils/authStorage'
 
 const API_URL = 'http://192.168.1.181:8000'
 
@@ -126,15 +127,11 @@ export default function CreateAccount() {
         return
       }
 
+      await saveAuthSession(data.token, data.user)
+
       router.replace({
         pathname: '/home',
-        params: {
-          userId: String(data.user.id),
-          token: data.token,
-          fullName: data.user.profile.fullName,
-          bio: data.user.profile.bio,
-          interests: JSON.stringify(data.user.profile.interests),
-        },
+        params: getHomeParams(data.token, data.user),
       })
     } catch {
       setMessage('Network error. Please try again later.')

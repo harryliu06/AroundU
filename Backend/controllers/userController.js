@@ -1,4 +1,4 @@
-import { getUserById, loginUser, signupUser } from '../logic/userLogic.js'
+import { getUserById, getUserByToken, loginUser, signupUser } from '../logic/userLogic.js'
 
 export async function signup(req, res) {
   try {
@@ -30,6 +30,17 @@ export async function getUser(req, res) {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error while fetching user.' })
+  }
+}
+
+export async function getCurrentUser(req, res) {
+  try {
+    const result = await getUserByToken(req.headers.authorization)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while fetching current user.' })
   }
 }
 

@@ -110,3 +110,27 @@ export async function getUserById(id) {
     body: { user: getPublicUser(user) },
   }
 }
+
+export async function getUserByToken(authorizationHeader) {
+  const token = String(authorizationHeader || '').replace(/^Bearer\s+/i, '').trim()
+
+  if (!token) {
+    return { status: 401, body: { message: 'Authorization token is required.' } }
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET)
+    const user = await User.findById(payload.id)
+
+    if (!user) {
+      return { status: 404, body: { message: 'User not found.' } }
+    }
+
+    return {
+      status: 200,
+      body: { user: getPublicUser(user) },
+    }
+  } catch {
+    return { status: 401, body: { message: 'Invalid or expired token.' } }
+  }
+}
