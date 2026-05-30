@@ -1,11 +1,14 @@
 import express from 'express';
 import cors from 'cors';    
+import 'dotenv/config'
+import { connectToDatabase } from './database/db.js'
 
-import { getUser, login, signup } from './controllers/userController.js';
+import { getUser, login, signup, nearbyUsers } from './controllers/userController.js';
 
 const app = express();
 app.use(express.json());
 app.use(cors());
+await connectToDatabase();
 
 app.get('/', (req, res) => {
     res.json({ message: 'API is running!'});
@@ -14,8 +17,11 @@ app.get('/', (req, res) => {
 app.post('/signup', signup);
 app.post('/login', login);
 app.get('/users/:id', getUser);
+app.get('/nearby-users', nearbyUsers);
 
 
-app.listen(8000, () => {
-    console.log('Server running on port 8000');
+const PORT = process.env.PORT || 8000
+
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });

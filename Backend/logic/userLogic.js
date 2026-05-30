@@ -1,9 +1,10 @@
 import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
+import mongoose from 'mongoose'
 
-import { addUser, findUserByEmail, findUserById } from './userStore.js'
+import User from '../database/user.js'
 
-const JWT_SECRET = 'secret_key'
+const JWT_SECRET = process.env.JWT_SECRET || 'secret_key'
 
 function normalizeEmail(email) {
   return String(email || '').trim().toLowerCase()
@@ -44,7 +45,9 @@ export async function signupUser({ email, password, profile }) {
     return { status: 400, body: { message: 'Password must be at least 8 characters.' } }
   }
 
-  if (findUserByEmail(normalizedEmail)) {
+  const existingUser = await User.findOne({ email: normalizedEmail })
+
+  if (existingUser) {
     return { status: 409, body: { message: 'An account with this email already exists.' } }
   }
 
@@ -52,7 +55,7 @@ export async function signupUser({ email, password, profile }) {
     return { status: 400, body: { message: 'Profile information is required.' } }
   }
 
-  const user = addUser({
+  const user = await User.create({
     email: normalizedEmail,
     password: await bcrypt.hash(password, 10),
     profile: {
@@ -61,6 +64,7 @@ export async function signupUser({ email, password, profile }) {
       schoolOrWork: String(profile.schoolOrWork || '').trim(),
       bio: String(profile.bio || '').trim(),
       interests: profile.interests.map((interest) => String(interest)).filter(Boolean),
+      profileImage: String(profile.profileImage || '').trim(),
     },
   })
 
@@ -72,7 +76,7 @@ export async function signupUser({ email, password, profile }) {
 
 export async function loginUser({ email, password }) {
   const normalizedEmail = normalizeEmail(email)
-  const user = findUserByEmail(normalizedEmail)
+  const user = await User.findOne({ email: normalizedEmail })
 
   if (!user) {
     return { status: 401, body: { message: 'Invalid Email' } }
@@ -90,8 +94,12 @@ export async function loginUser({ email, password }) {
   }
 }
 
-export function getUserById(id) {
-  const user = findUserById(Number(id))
+export async function getUserById(id) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return { status: 400, body: { message: 'Invalid user id.' } }
+  }
+
+  const user = await User.findById(id)
 
   if (!user) {
     return { status: 404, body: { message: 'User not found.' } }

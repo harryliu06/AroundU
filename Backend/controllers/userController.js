@@ -1,19 +1,44 @@
 import { getUserById, loginUser, signupUser } from '../logic/userLogic.js'
 
 export async function signup(req, res) {
-  const result = await signupUser(req.body)
+  try {
+    const result = await signupUser(req.body)
 
-  res.status(result.status).json(result.body)
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while creating account.' })
+  }
 }
 
 export async function login(req, res) {
-  const result = await loginUser(req.body)
+  try {
+    const result = await loginUser(req.body)
 
-  res.status(result.status).json(result.body)
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while logging in.' })
+  }
 }
 
-export function getUser(req, res) {
-  const result = getUserById(req.params.id)
+export async function getUser(req, res) {
+  try {
+    const result = await getUserById(req.params.id)
 
-  res.status(result.status).json(result.body)
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while fetching user.' })
+  }
+}
+
+export async function nearbyUsers(req, res) {
+  try {
+    // Placeholder for nearby users logic
+    res.json({ message: 'Nearby users endpoint - to be implemented' })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while fetching nearby users.' })
+  }
 }
