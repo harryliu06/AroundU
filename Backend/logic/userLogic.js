@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
+import Friendship from '../database/friendship.js'
 import User from '../database/user.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key'
@@ -209,6 +210,21 @@ export async function listNearbyUsersByToken(authorizationHeader) {
 
   const query = currentUserId ? { _id: { $ne: currentUserId } } : {}
   const users = await User.find(query).sort({ updatedAt: -1 }).limit(20)
+  const friendships = currentUserId
+    ? await Friendship.find({
+        $or: [{ requester: currentUserId }, { recipient: currentUserId }],
+      })
+    : []
+  const friendshipByUserId = new Map()
+
+  friendships.forEach((friendship) => {
+    const otherUserId =
+      String(friendship.requester) === String(currentUserId)
+        ? String(friendship.recipient)
+        : String(friendship.requester)
+
+    friendshipByUserId.set(otherUserId, friendship.status)
+  })
 
   return {
     status: 200,
@@ -216,6 +232,7 @@ export async function listNearbyUsersByToken(authorizationHeader) {
       users: users.map((user, index) => ({
         ...getPublicUser(user),
         distance: Number((2.4 + index * 0.4).toFixed(1)),
+        friendStatus: friendshipByUserId.get(String(user.id)) || 'none',
       })),
     },
   }

@@ -7,12 +7,14 @@ const friendshipSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ['pending', 'accepted', 'blocked'],
-      default: 'accepted',
+      default: 'pending',
     },
+    participantKey: { type: String, required: true, unique: true },
   },
   { timestamps: true }
 )
 
-friendshipSchema.index({ requester: 1, recipient: 1 }, { unique: true })
+friendshipSchema.index({ recipient: 1, status: 1 })
+friendshipSchema.index({ requester: 1, status: 1 })
 
 export default mongoose.model('Friendship', friendshipSchema)
