@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import {
+  ActivityIndicator,
   Image,
   Pressable,
   SafeAreaView,
@@ -22,11 +24,15 @@ const GALLERY_IMAGES = [
 
 export default function UserProfile() {
   const params = useLocalSearchParams<{
+    userId?: string
+    token?: string
     fullName?: string
     bio?: string
     interests?: string
     profileImage?: string
   }>()
+  const [friendMessage, setFriendMessage] = useState<string | null>(null)
+  const [isAddingFriend, setIsAddingFriend] = useState(false)
   const fullName = params.fullName || 'FULL NAME PLACEHOLDER'
   const bio =
     params.bio ||
@@ -59,6 +65,37 @@ export default function UserProfile() {
     interests = ['Biking', 'Music', 'YouTube', 'Horror Films', 'Photography']
   }
 
+  const handleAddFriend = async () => {
+    if (!params.userId || !params.token) {
+      setFriendMessage('Friend data is missing.')
+      return
+    }
+
+    setIsAddingFriend(true)
+    setFriendMessage(null)
+
+    try {
+      const response = await fetch(`http://192.168.1.181:8000/friends/${params.userId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${params.token}`,
+        },
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        setFriendMessage(data.message || 'Could not add friend.')
+        return
+      }
+
+      setFriendMessage('Friend added. Chat history will now be saved.')
+    } catch {
+      setFriendMessage('Network error. Please try again later.')
+    } finally {
+      setIsAddingFriend(false)
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -88,19 +125,22 @@ export default function UserProfile() {
           <Text style={styles.name}>{fullName}</Text>
           <Text style={styles.meta}>{interests.slice(0, 3).join(', ')}</Text>
 
-          <Pressable
-            style={({ pressed }) => [styles.messageButton, pressed && styles.buttonInactive]}
-          >
-            <FontAwesome name="comment" size={16} color="#ffffff" style={styles.buttonIcon} />
-            <Text style={styles.primaryActionText}>Message Request</Text>
-          </Pressable>
-
           <View style={styles.actionRow}>
             <Pressable
               style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonInactive]}
+              disabled={isAddingFriend}
+              onPress={() => {
+                void handleAddFriend()
+              }}
             >
-              <FontAwesome name="user-plus" size={15} color="#2563eb" style={styles.buttonIcon} />
-              <Text style={styles.secondaryButtonText}>Add Friend</Text>
+              {isAddingFriend ? (
+                <ActivityIndicator color="#2563eb" />
+              ) : (
+                <>
+                  <FontAwesome name="user-plus" size={15} color="#2563eb" style={styles.buttonIcon} />
+                  <Text style={styles.secondaryButtonText}>Add Friend</Text>
+                </>
+              )}
             </Pressable>
 
             <Pressable
@@ -110,6 +150,17 @@ export default function UserProfile() {
               <Text style={styles.mutedButtonText}>Block</Text>
             </Pressable>
           </View>
+
+          {friendMessage ? (
+            <Text
+              style={[
+                styles.friendMessage,
+                friendMessage.includes('added') && styles.friendSuccess,
+              ]}
+            >
+              {friendMessage}
+            </Text>
+          ) : null}
 
           <View style={styles.section}>
             <Text style={styles.sectionTitle}>Bio</Text>
@@ -227,17 +278,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 10,
   },
-  messageButton: {
-    width: '100%',
-    height: 44,
-    borderRadius: 10,
-    backgroundColor: '#36A7F8',
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 18,
-    marginBottom: 10,
-  },
   primaryActionText: {
     color: '#ffffff',
     fontSize: 15,
@@ -310,5 +350,17 @@ const styles = StyleSheet.create({
   },
   buttonInactive: {
     opacity: 0.72,
+  },
+  friendMessage: {
+    width: '100%',
+    color: '#b91c1c',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: -10,
+    marginBottom: 18,
+  },
+  friendSuccess: {
+    color: '#0369a1',
   },
 })

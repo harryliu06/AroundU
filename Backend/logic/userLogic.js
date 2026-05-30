@@ -193,3 +193,30 @@ export async function updateUserProfileByToken(authorizationHeader, profile) {
     return { status: 401, body: { message: 'Invalid or expired token.' } }
   }
 }
+
+export async function listNearbyUsersByToken(authorizationHeader) {
+  const token = String(authorizationHeader || '').replace(/^Bearer\s+/i, '').trim()
+  let currentUserId = null
+
+  if (token) {
+    try {
+      const payload = jwt.verify(token, JWT_SECRET)
+      currentUserId = payload.id
+    } catch {
+      currentUserId = null
+    }
+  }
+
+  const query = currentUserId ? { _id: { $ne: currentUserId } } : {}
+  const users = await User.find(query).sort({ updatedAt: -1 }).limit(20)
+
+  return {
+    status: 200,
+    body: {
+      users: users.map((user, index) => ({
+        ...getPublicUser(user),
+        distance: Number((2.4 + index * 0.4).toFixed(1)),
+      })),
+    },
+  }
+}

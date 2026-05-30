@@ -11,6 +11,12 @@ import {
     nearbyUsers,
     updateCurrentUser,
 } from './controllers/userController.js';
+import {
+    addFriend,
+    listFriends,
+    listMessages,
+    sendMessage,
+} from './controllers/socialController.js';
 
 const app = express();
 app.use(express.json());
@@ -27,6 +33,10 @@ app.get('/me', getCurrentUser);
 app.patch('/me', updateCurrentUser);
 app.get('/users/:id', getUser);
 app.get('/nearby-users', nearbyUsers);
+app.get('/friends', listFriends);
+app.post('/friends/:friendId', addFriend);
+app.get('/chats/:friendId/messages', listMessages);
+app.post('/chats/:friendId/messages', sendMessage);
 
 
 const PORT = process.env.PORT || 8000

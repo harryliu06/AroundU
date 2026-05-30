@@ -16,8 +16,10 @@ import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
 
+const API_URL = 'http://192.168.1.181:8000'
+
 type Message = {
-  id: number
+  id: string
   text: string
   time: string
   sender: 'me' | 'them'
@@ -25,19 +27,19 @@ type Message = {
 
 const INITIAL_MESSAGES: Message[] = [
   {
-    id: 1,
+    id: '1',
     sender: 'them',
     text: 'Hey, I saw we both like music and coffee.',
     time: '9:41 AM',
   },
   {
-    id: 2,
+    id: '2',
     sender: 'me',
     text: 'Nice. I am always down to find a good coffee spot nearby.',
     time: '9:42 AM',
   },
   {
-    id: 3,
+    id: '3',
     sender: 'them',
     text: 'There is a cafe near campus that usually has live music on Fridays.',
     time: '9:44 AM',
@@ -70,15 +72,21 @@ const MEETUP_OPTIONS = [
 
 export default function Chat() {
   const params = useLocalSearchParams<{
+    friendId?: string
     fullName?: string
     profileImage?: string
+    token?: string
   }>()
   const [messageText, setMessageText] = useState('')
   const [messages, setMessages] = useState<Message[]>(INITIAL_MESSAGES)
   const [isOptionsOpen, setIsOptionsOpen] = useState(false)
+  const [statusMessage, setStatusMessage] = useState<string | null>(null)
   const messagesScrollRef = useRef<ScrollView | null>(null)
 
   const fullName = params.fullName || 'Nearby User'
+  const friendId = params.friendId
+  const token = params.token
+  const canPersistChat = Boolean(friendId && token)
   const rawProfileImage = params.profileImage?.trim()
   const profileImage =
     rawProfileImage &&
@@ -119,32 +127,119 @@ export default function Chat() {
     }
   }, [])
 
-  const handleSend = () => {
+  useEffect(() => {
+    const loadMessages = async () => {
+      if (!canPersistChat) {
+        setStatusMessage(null)
+        return
+      }
+
+      try {
+        const response = await fetch(`${API_URL}/chats/${friendId}/messages`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        const data = await response.json()
+
+        if (!response.ok) {
+          setMessages([])
+          setStatusMessage(data.message || 'Add this user as a friend to save chat history.')
+          return
+        }
+
+        const loadedMessages = Array.isArray(data.messages) ? data.messages : []
+        setMessages(
+          loadedMessages.map((message: any) => ({
+            id: String(message._id || message.id),
+            text: String(message.text || ''),
+            time: message.createdAt
+              ? new Date(message.createdAt).toLocaleTimeString([], {
+                  hour: 'numeric',
+                  minute: '2-digit',
+                })
+              : 'Now',
+            sender: String(message.sender) === String(friendId) ? 'them' : 'me',
+          }))
+        )
+        setStatusMessage(
+          loadedMessages.length ? null : 'You are friends now. Start the saved conversation.'
+        )
+      } catch {
+        setStatusMessage('Network error loading chat history.')
+      }
+    }
+
+    void loadMessages()
+  }, [canPersistChat, friendId, token])
+
+  const persistMessage = async (text: string) => {
+    if (!canPersistChat) return false
+
+    try {
+      const response = await fetch(`${API_URL}/chats/${friendId}/messages`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ text }),
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        setStatusMessage(data.message || 'Message was not saved.')
+        return false
+      }
+
+      setStatusMessage(null)
+      return data.message
+    } catch {
+      setStatusMessage('Network error. Message was not saved.')
+      return false
+    }
+  }
+
+  const handleSend = async () => {
     const text = messageText.trim()
 
     if (!text) return
 
+    const savedMessage = await persistMessage(text)
+
     setMessages((prev) => [
       ...prev,
       {
-        id: prev.length + 1,
+        id: savedMessage ? String(savedMessage._id || savedMessage.id) : `local-${Date.now()}`,
         sender: 'me',
         text,
-        time: 'Now',
+        time: savedMessage?.createdAt
+          ? new Date(savedMessage.createdAt).toLocaleTimeString([], {
+              hour: 'numeric',
+              minute: '2-digit',
+            })
+          : 'Now',
       },
     ])
     setMessageText('')
     setIsOptionsOpen(false)
   }
 
-  const sendChatMessage = (text: string) => {
+  const sendChatMessage = async (text: string) => {
+    const savedMessage = await persistMessage(text)
+
     setMessages((prev) => [
       ...prev,
       {
-        id: prev.length + 1,
+        id: savedMessage ? String(savedMessage._id || savedMessage.id) : `local-${Date.now()}`,
         sender: 'me',
         text,
-        time: 'Now',
+        time: savedMessage?.createdAt
+          ? new Date(savedMessage.createdAt).toLocaleTimeString([], {
+              hour: 'numeric',
+              minute: '2-digit',
+            })
+          : 'Now',
       },
     ])
   }
@@ -226,6 +321,7 @@ export default function Chat() {
               onContentSizeChange={() => scrollToLatestMessage(false)}
             >
               <Text style={styles.dayLabel}>Today</Text>
+              {statusMessage ? <Text style={styles.chatStatus}>{statusMessage}</Text> : null}
 
               {messages.map((message) => {
                 const isMine = message.sender === 'me'
@@ -305,7 +401,9 @@ export default function Chat() {
                   scrollToLatestMessage()
                 }}
                 returnKeyType="send"
-                onSubmitEditing={handleSend}
+                onSubmitEditing={() => {
+                  void handleSend()
+                }}
               />
               <Pressable
                 style={({ pressed }) => [
@@ -313,7 +411,9 @@ export default function Chat() {
                   (!messageText.trim() || pressed) && styles.buttonInactive,
                 ]}
                 disabled={!messageText.trim()}
-                onPress={handleSend}
+                onPress={() => {
+                  void handleSend()
+                }}
               >
                 <FontAwesome name="paper-plane" size={15} color="#ffffff" />
               </Pressable>
@@ -410,6 +510,15 @@ const styles = StyleSheet.create({
     fontSize: 12,
     lineHeight: 16,
     marginBottom: 18,
+  },
+  chatStatus: {
+    alignSelf: 'center',
+    color: '#6b7280',
+    fontSize: 12,
+    lineHeight: 16,
+    textAlign: 'center',
+    marginBottom: 18,
+    paddingHorizontal: 18,
   },
   messageRow: {
     width: '100%',

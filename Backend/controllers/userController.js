@@ -1,6 +1,7 @@
 import {
   getUserById,
   getUserByToken,
+  listNearbyUsersByToken,
   loginUser,
   signupUser,
   updateUserProfileByToken,
@@ -63,8 +64,9 @@ export async function updateCurrentUser(req, res) {
 
 export async function nearbyUsers(req, res) {
   try {
-    // Placeholder for nearby users logic
-    res.json({ message: 'Nearby users endpoint - to be implemented' })
+    const result = await listNearbyUsersByToken(req.headers.authorization)
+
+    res.status(result.status).json(result.body)
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error while fetching nearby users.' })

@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import {
   Image,
   Pressable,
@@ -11,44 +12,16 @@ import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
 
+const API_URL = 'http://192.168.1.181:8000'
+
 type NearbyUser = {
-  id: number 
+  id: string
   name: string
   tags: string[]
   distance: number
-  image: string
+  image?: string
+  bio: string
 }
-
-const NEARBY_USERS: NearbyUser[] = [
-  {
-    id: 1,
-    name: 'Harley Quizel',
-    tags: ['Biking', 'Music', 'YouTube'],
-    distance: 2.8,
-    image: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    id: 2,
-    name: 'Catherine Emily',
-    tags: ['Baking', 'Movies', 'Running'],
-    distance: 3.0,
-    image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    id: 3,
-    name: 'Carter Smith',
-    tags: ['Hiking', 'Reading', 'Cooking'],
-    distance: 3.5,
-    image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=300&q=80',
-  },
-  {
-    id: 4,
-    name: 'Mia Chen',
-    tags: ['Reading', 'Music', 'Biking'],
-    distance: 4.1,
-    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=300&q=80',
-  },
-]
 
 const MAP_PINS = [
   { id: 1, top: 34, left: 50, color: '#36A7F8' },
@@ -62,6 +35,18 @@ function formatTags(tags: string[]) {
   return tags.map((tag) => `#${tag}`).join(', ')
 }
 
+function getInitials(name: string) {
+  return (
+    name
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase() || 'AU'
+  )
+}
+
 export default function Home() {
   const currentUser = useLocalSearchParams<{
     userId?: string
@@ -71,6 +56,47 @@ export default function Home() {
     interests?: string
     profileImage?: string
   }>()
+  const [nearbyUsers, setNearbyUsers] = useState<NearbyUser[]>([])
+  const [nearbyMessage, setNearbyMessage] = useState('Loading nearby users...')
+
+  useEffect(() => {
+    const loadNearbyUsers = async () => {
+      try {
+        const response = await fetch(`${API_URL}/nearby-users`, {
+          headers: currentUser.token
+            ? {
+                Authorization: `Bearer ${currentUser.token}`,
+              }
+            : undefined,
+        })
+        const data = await response.json()
+
+        if (!response.ok) {
+          setNearbyMessage(data.message || 'Could not load nearby users.')
+          return
+        }
+
+        const users = Array.isArray(data.users) ? data.users : []
+        setNearbyUsers(
+          users.map((user: any) => ({
+            id: String(user.id),
+            name: user.profile?.fullName || 'AroundU User',
+            tags: Array.isArray(user.profile?.interests) ? user.profile.interests : [],
+            distance: Number(user.distance ?? 0),
+            image: user.profile?.profileImage || undefined,
+            bio:
+              user.profile?.bio ||
+              `${user.profile?.fullName || 'This user'} is nearby and looking to meet people with similar interests.`,
+          }))
+        )
+        setNearbyMessage(users.length ? '' : 'No other users found yet.')
+      } catch {
+        setNearbyMessage('Network error loading nearby users.')
+      }
+    }
+
+    void loadNearbyUsers()
+  }, [currentUser.token])
 
   const openCurrentUserProfile = () => {
     router.push({
@@ -167,11 +193,13 @@ export default function Home() {
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionTitle}>Nearby Users</Text>
-          <Text style={styles.sectionHint}>{NEARBY_USERS.length} online</Text>
+          <Text style={styles.sectionHint}>{nearbyUsers.length} online</Text>
         </View>
 
         <View style={styles.list}>
-          {NEARBY_USERS.map((user) => (
+          {nearbyMessage ? <Text style={styles.emptyText}>{nearbyMessage}</Text> : null}
+
+          {nearbyUsers.map((user) => (
             <Pressable
               key={user.id}
               style={({ pressed }) => [styles.userRow, pressed && styles.buttonInactive]}
@@ -179,15 +207,23 @@ export default function Home() {
                 router.push({
                   pathname: '/friendProfile',
                   params: {
+                    userId: user.id,
+                    token: currentUser.token,
                     fullName: user.name,
                     interests: JSON.stringify(user.tags),
-                    bio: `${user.name} is nearby and looking to meet people with similar interests.`,
-                    profileImage: user.image,
+                    bio: user.bio,
+                    ...(user.image ? { profileImage: user.image } : {}),
                   },
                 })
               }
             >
-              <Image source={{ uri: user.image }} style={styles.avatar} />
+              <View style={styles.avatar}>
+                {user.image ? (
+                  <Image source={{ uri: user.image }} style={styles.avatarImage} />
+                ) : (
+                  <Text style={styles.avatarInitials}>{getInitials(user.name)}</Text>
+                )}
+              </View>
 
               <View style={styles.userInfo}>
                 <View style={styles.userTitleRow}>
@@ -206,7 +242,9 @@ export default function Home() {
                     pathname: '/chat',
                     params: {
                       fullName: user.name,
-                      profileImage: user.image,
+                      friendId: user.id,
+                      token: currentUser.token,
+                      ...(user.image ? { profileImage: user.image } : {}),
                     },
                   })
                 }
@@ -415,7 +453,20 @@ const styles = StyleSheet.create({
     borderRadius: 29,
     borderWidth: 1,
     borderColor: '#36A7F8',
-    backgroundColor: '#e5e7eb',
+    backgroundColor: '#f0f9ff',
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarInitials: {
+    color: '#36A7F8',
+    fontSize: 16,
+    lineHeight: 20,
+    fontWeight: '700',
   },
   userInfo: {
     flex: 1,
@@ -458,5 +509,12 @@ const styles = StyleSheet.create({
   },
   buttonInactive: {
     opacity: 0.72,
+  },
+  emptyText: {
+    color: '#6b7280',
+    fontSize: 14,
+    lineHeight: 20,
+    textAlign: 'center',
+    marginTop: 8,
   },
 })
