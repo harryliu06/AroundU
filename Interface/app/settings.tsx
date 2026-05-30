@@ -57,6 +57,10 @@ export default function Settings() {
     router.push('/editProfile')
   }
 
+  const openNotifications = () => {
+    router.push('/notifications')
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -93,7 +97,12 @@ export default function Settings() {
               value="View and edit profile"
               onPress={openEditProfile}
             />
-            <SettingRow icon="bell-o" title="Notifications" value="Meet-up and message alerts" />
+            <SettingRow
+              icon="bell-o"
+              title="Notifications"
+              value="Friend requests and alerts"
+              onPress={openNotifications}
+            />
             <SettingRow icon="map-marker" title="Location" value="Nearby discovery settings" />
           </View>
         </View>

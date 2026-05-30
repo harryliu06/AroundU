@@ -21,6 +21,7 @@ type NearbyUser = {
   distance: number
   image?: string
   bio: string
+  friendStatus: 'none' | 'pending' | 'accepted'
 }
 
 const MAP_PINS = [
@@ -87,6 +88,10 @@ export default function Home() {
             bio:
               user.profile?.bio ||
               `${user.profile?.fullName || 'This user'} is nearby and looking to meet people with similar interests.`,
+            friendStatus:
+              user.friendStatus === 'accepted' || user.friendStatus === 'pending'
+                ? user.friendStatus
+                : 'none',
           }))
         )
         setNearbyMessage(users.length ? '' : 'No other users found yet.')
@@ -126,6 +131,15 @@ export default function Home() {
     })
   }
 
+  const openMessages = () => {
+    router.push({
+      pathname: '/messages',
+      params: {
+        token: currentUser.token,
+      },
+    })
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -141,6 +155,12 @@ export default function Home() {
               onPress={openSettings}
             >
               <FontAwesome name="gear" size={18} color="#111111" />
+            </Pressable>
+            <Pressable
+              style={({ pressed }) => [styles.topBarButton, pressed && styles.buttonInactive]}
+              onPress={openMessages}
+            >
+              <FontAwesome name="comments-o" size={18} color="#111111" />
             </Pressable>
             <Pressable
               style={({ pressed }) => [styles.topBarButton, pressed && styles.buttonInactive]}
@@ -212,6 +232,7 @@ export default function Home() {
                     fullName: user.name,
                     interests: JSON.stringify(user.tags),
                     bio: user.bio,
+                    friendStatus: user.friendStatus,
                     ...(user.image ? { profileImage: user.image } : {}),
                   },
                 })
@@ -228,7 +249,17 @@ export default function Home() {
               <View style={styles.userInfo}>
                 <View style={styles.userTitleRow}>
                   <Text style={styles.userName}>{user.name}</Text>
-                  <Text style={styles.distanceText}>{user.distance.toFixed(1)} mi</Text>
+                  {user.friendStatus === 'accepted' ? (
+                    <View style={styles.friendBadge}>
+                      <Text style={styles.friendBadgeText}>Friends</Text>
+                    </View>
+                  ) : user.friendStatus === 'pending' ? (
+                    <View style={styles.pendingBadge}>
+                      <Text style={styles.pendingBadgeText}>Requested</Text>
+                    </View>
+                  ) : (
+                    <Text style={styles.distanceText}>{user.distance.toFixed(1)} mi</Text>
+                  )}
                 </View>
                 <Text style={styles.tagsText} numberOfLines={1}>
                   {formatTags(user.tags)}
@@ -490,6 +521,30 @@ const styles = StyleSheet.create({
     color: '#0369a1',
     fontSize: 12,
     lineHeight: 16,
+    fontWeight: '700',
+  },
+  friendBadge: {
+    borderRadius: 999,
+    backgroundColor: '#e0f2fe',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  friendBadgeText: {
+    color: '#0369a1',
+    fontSize: 11,
+    lineHeight: 14,
+    fontWeight: '700',
+  },
+  pendingBadge: {
+    borderRadius: 999,
+    backgroundColor: '#f3f4f6',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+  },
+  pendingBadgeText: {
+    color: '#6b7280',
+    fontSize: 11,
+    lineHeight: 14,
     fontWeight: '700',
   },
   tagsText: {

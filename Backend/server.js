@@ -12,7 +12,10 @@ import {
     updateCurrentUser,
 } from './controllers/userController.js';
 import {
+    acceptFriendRequest,
     addFriend,
+    getFriendStatus,
+    listFriendRequests,
     listFriends,
     listMessages,
     sendMessage,
@@ -35,6 +38,9 @@ app.get('/users/:id', getUser);
 app.get('/nearby-users', nearbyUsers);
 app.get('/friends', listFriends);
 app.post('/friends/:friendId', addFriend);
+app.get('/friends/:friendId/status', getFriendStatus);
+app.get('/friend-requests', listFriendRequests);
+app.post('/friend-requests/:requestId/accept', acceptFriendRequest);
 app.get('/chats/:friendId/messages', listMessages);
 app.post('/chats/:friendId/messages', sendMessage);
 
