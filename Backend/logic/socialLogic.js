@@ -48,6 +48,10 @@ function getConversationKey(firstUserId, secondUserId) {
   return normalizeFriendPair(firstUserId, secondUserId).join(':')
 }
 
+function getParticipantKey(firstUserId, secondUserId) {
+  return getConversationKey(firstUserId, secondUserId)
+}
+
 async function areFriends(firstUserId, secondUserId) {
   const [firstId, secondId] = normalizeFriendPair(firstUserId, secondUserId)
 
@@ -79,22 +83,51 @@ export async function addFriendByToken(authorizationHeader, friendId) {
     return { status: 404, body: { message: 'Friend user not found.' } }
   }
 
-  const [requester, recipient] = normalizeFriendPair(auth.user.id, friend.id)
-  const friendship = await Friendship.findOneAndUpdate(
-    {
-      $or: [
-        { requester, recipient },
-        { requester: recipient, recipient: requester },
-      ],
-    },
-    { requester, recipient, status: 'accepted' },
-    { new: true, upsert: true, setDefaultsOnInsert: true }
-  )
+  const participantKey = getParticipantKey(auth.user.id, friend.id)
+  const existingFriendship = await Friendship.findOne({
+    $or: [
+      { participantKey },
+      { requester: auth.user.id, recipient: friend.id },
+      { requester: friend.id, recipient: auth.user.id },
+    ],
+  })
+
+  if (existingFriendship?.status === 'accepted') {
+    return {
+      status: 200,
+      body: {
+        message: 'You are already friends.',
+        friendship: existingFriendship,
+        friend: getPublicUser(friend),
+      },
+    }
+  }
+
+  if (existingFriendship?.status === 'pending') {
+    return {
+      status: 200,
+      body: {
+        message:
+          String(existingFriendship.requester) === String(auth.user.id)
+            ? 'Friend request already sent.'
+            : 'This user already sent you a friend request.',
+        friendship: existingFriendship,
+        friend: getPublicUser(friend),
+      },
+    }
+  }
+
+  const friendship = await Friendship.create({
+    requester: auth.user.id,
+    recipient: friend.id,
+    status: 'pending',
+    participantKey,
+  })
 
   return {
-    status: 200,
+    status: 201,
     body: {
-      message: 'Friend added successfully',
+      message: 'Friend request sent.',
       friendship,
       friend: getPublicUser(friend),
     },
@@ -126,6 +159,90 @@ export async function listFriendsByToken(authorizationHeader) {
   return {
     status: 200,
     body: { friends },
+  }
+}
+
+export async function getFriendStatusByToken(authorizationHeader, friendId) {
+  const auth = await getAuthenticatedUser(authorizationHeader)
+
+  if (auth.error) return auth.error
+
+  if (!mongoose.Types.ObjectId.isValid(friendId)) {
+    return { status: 400, body: { message: 'Invalid friend id.' } }
+  }
+
+  const friendship = await Friendship.findOne({
+    participantKey: getParticipantKey(auth.user.id, friendId),
+  })
+
+  if (!friendship) {
+    return { status: 200, body: { status: 'none' } }
+  }
+
+  return {
+    status: 200,
+    body: {
+      status: friendship.status,
+      direction: String(friendship.requester) === String(auth.user.id) ? 'outgoing' : 'incoming',
+      requestId: friendship.id,
+    },
+  }
+}
+
+export async function listFriendRequestsByToken(authorizationHeader) {
+  const auth = await getAuthenticatedUser(authorizationHeader)
+
+  if (auth.error) return auth.error
+
+  const requests = await Friendship.find({
+    recipient: auth.user.id,
+    status: 'pending',
+  })
+    .populate('requester')
+    .sort({ createdAt: -1 })
+
+  return {
+    status: 200,
+    body: {
+      requests: requests.map((request) => ({
+        id: request.id,
+        requester: getPublicUser(request.requester),
+        createdAt: request.createdAt,
+      })),
+    },
+  }
+}
+
+export async function acceptFriendRequestByToken(authorizationHeader, requestId) {
+  const auth = await getAuthenticatedUser(authorizationHeader)
+
+  if (auth.error) return auth.error
+
+  if (!mongoose.Types.ObjectId.isValid(requestId)) {
+    return { status: 400, body: { message: 'Invalid request id.' } }
+  }
+
+  const friendship = await Friendship.findOneAndUpdate(
+    {
+      _id: requestId,
+      recipient: auth.user.id,
+      status: 'pending',
+    },
+    { status: 'accepted' },
+    { new: true }
+  ).populate('requester')
+
+  if (!friendship) {
+    return { status: 404, body: { message: 'Friend request not found.' } }
+  }
+
+  return {
+    status: 200,
+    body: {
+      message: 'Friend request accepted.',
+      friendship,
+      friend: getPublicUser(friendship.requester),
+    },
   }
 }
 
