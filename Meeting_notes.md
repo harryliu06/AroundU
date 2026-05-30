@@ -83,3 +83,10 @@
   - Swaraag Sistla
   - Tatiana Anahi Gutierrez
 - The team met to discuss the heuristic evaluation of the UI design after individually finishing designs of the assigned pages. Members analyzed and shared the views on the UI designs while identifying areas for improvements in usability. As we discussed, we decided to create loading page and error page.
+
+### May, Friday 29, 2026 (Virtual)
+- Present:
+  - Harry Lwin
+  - Jacob Ryan Almaria
+  - Dorian Steve Ramirez
+- The team met to discuss the testing plan. Specifically for part 1. The rest is an attempt to figure out how to run the code and open the program that one of us has begun. Must know as to be able to divide the work for testing.
