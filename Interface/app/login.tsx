@@ -16,8 +16,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome'
 
 import { router } from 'expo-router'
 import { getHomeParams, saveAuthSession } from '../utils/authStorage'
-
-const API_URL = 'http://192.168.1.181:8000'
+import { apiFetch } from '../utils/api'
 
 type LoginForm = {
   email: string
@@ -50,7 +49,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${API_URL}/login`, {
+      const response = await apiFetch('/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

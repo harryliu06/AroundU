@@ -11,9 +11,8 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
+import { apiFetch } from '../utils/api'
 import { getAuthSession } from '../utils/authStorage'
-
-const API_URL = 'http://192.168.1.181:8000'
 
 type FriendRequest = {
   id: string
@@ -46,7 +45,7 @@ export default function Notifications() {
 
   const loadRequests = async (authToken: string) => {
     try {
-      const response = await fetch(`${API_URL}/friend-requests`, {
+      const response = await apiFetch('/friend-requests', {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
@@ -88,7 +87,7 @@ export default function Notifications() {
     setAcceptingId(requestId)
 
     try {
-      const response = await fetch(`${API_URL}/friend-requests/${requestId}/accept`, {
+      const response = await apiFetch(`/friend-requests/${requestId}/accept`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

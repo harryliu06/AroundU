@@ -14,8 +14,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import { router, useLocalSearchParams } from 'expo-router'
 import { getHomeParams, saveAuthSession } from '../utils/authStorage'
-
-const API_URL = 'http://192.168.1.181:8000'
+import { apiFetch } from '../utils/api'
 
 type AccountForm = {
   email: string
@@ -102,7 +101,7 @@ export default function CreateAccount() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch(`${API_URL}/signup`, {
+      const response = await apiFetch('/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

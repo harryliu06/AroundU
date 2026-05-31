@@ -15,8 +15,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
-
-const API_URL = 'http://192.168.1.181:8000'
+import { apiFetch } from '../utils/api'
 
 type Message = {
   id: string
@@ -114,7 +113,7 @@ export default function Chat() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/chats/${friendId}/messages`, {
+        const response = await apiFetch(`/chats/${friendId}/messages`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -156,7 +155,7 @@ export default function Chat() {
     if (!canPersistChat) return false
 
     try {
-      const response = await fetch(`${API_URL}/chats/${friendId}/messages`, {
+      const response = await apiFetch(`/chats/${friendId}/messages`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,

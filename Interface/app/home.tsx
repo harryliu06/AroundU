@@ -11,8 +11,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
-
-const API_URL = 'http://192.168.1.181:8000'
+import { apiFetch } from '../utils/api'
 
 type NearbyUser = {
   id: string
@@ -63,7 +62,7 @@ export default function Home() {
   useEffect(() => {
     const loadNearbyUsers = async () => {
       try {
-        const response = await fetch(`${API_URL}/nearby-users`, {
+        const response = await apiFetch('/nearby-users', {
           headers: currentUser.token
             ? {
                 Authorization: `Bearer ${currentUser.token}`,

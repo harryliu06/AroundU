@@ -11,8 +11,7 @@ import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
 import { getAuthSession } from '../utils/authStorage'
-
-const API_URL = 'http://192.168.1.181:8000'
+import { apiFetch } from '../utils/api'
 
 type Friend = {
   id: string
@@ -58,7 +57,7 @@ export default function Messages() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/friends`, {
+        const response = await apiFetch('/friends', {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },

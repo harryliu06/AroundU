@@ -12,6 +12,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
+import { apiFetch } from '../utils/api'
 
 const COVER_IMAGE =
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
@@ -81,14 +82,11 @@ export default function UserProfile() {
       setIsCheckingStatus(true)
 
       try {
-        const response = await fetch(
-          `http://192.168.1.181:8000/friends/${params.userId}/status`,
-          {
-            headers: {
-              Authorization: `Bearer ${params.token}`,
-            },
-          }
-        )
+        const response = await apiFetch(`/friends/${params.userId}/status`, {
+          headers: {
+            Authorization: `Bearer ${params.token}`,
+          },
+        })
         const data = await response.json()
 
         if (response.ok && ['none', 'pending', 'accepted'].includes(data.status)) {
@@ -123,7 +121,7 @@ export default function UserProfile() {
     setFriendMessage(null)
 
     try {
-      const response = await fetch(`http://192.168.1.181:8000/friends/${params.userId}`, {
+      const response = await apiFetch(`/friends/${params.userId}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${params.token}`,

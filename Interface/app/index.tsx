@@ -7,8 +7,7 @@ import {
   getHomeParams,
   saveAuthSession,
 } from '../utils/authStorage'
-
-const API_URL = 'http://192.168.1.181:8000'
+import { apiFetch } from '../utils/api'
 
 export default function Index() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
@@ -24,7 +23,7 @@ export default function Index() {
       }
 
       try {
-        const response = await fetch(`${API_URL}/me`, {
+        const response = await apiFetch('/me', {
           headers: {
             Authorization: `Bearer ${session.token}`,
           },
