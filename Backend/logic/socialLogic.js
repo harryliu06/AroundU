@@ -117,10 +117,24 @@ export async function addFriendByToken(authorizationHeader, friendId) {
     }
   }
 
+  if (existingFriendship?.status === 'blocked') {
+    return {
+      status: 403,
+      body: {
+        message:
+          String(existingFriendship.blockedBy) === String(auth.user.id)
+            ? 'Unblock this user before sending a friend request.'
+            : 'You cannot send a friend request to this user.',
+        friendship: existingFriendship,
+      },
+    }
+  }
+
   const friendship = await Friendship.create({
     requester: auth.user.id,
     recipient: friend.id,
     status: 'pending',
+    blockedBy: null,
     participantKey,
   })
 
@@ -162,6 +176,103 @@ export async function listFriendsByToken(authorizationHeader) {
   }
 }
 
+export async function blockUserByToken(authorizationHeader, blockedUserId) {
+  const auth = await getAuthenticatedUser(authorizationHeader)
+
+  if (auth.error) return auth.error
+
+  if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
+    return { status: 400, body: { message: 'Invalid user id.' } }
+  }
+
+  if (String(auth.user.id) === String(blockedUserId)) {
+    return { status: 400, body: { message: 'You cannot block yourself.' } }
+  }
+
+  const blockedUser = await User.findById(blockedUserId)
+
+  if (!blockedUser) {
+    return { status: 404, body: { message: 'User not found.' } }
+  }
+
+  const participantKey = getParticipantKey(auth.user.id, blockedUser.id)
+  const friendship = await Friendship.findOneAndUpdate(
+    { participantKey },
+    {
+      requester: auth.user.id,
+      recipient: blockedUser.id,
+      status: 'blocked',
+      blockedBy: auth.user.id,
+      participantKey,
+    },
+    { new: true, upsert: true, setDefaultsOnInsert: true }
+  )
+
+  return {
+    status: 200,
+    body: {
+      message: 'User blocked.',
+      friendship,
+      blockedUser: getPublicUser(blockedUser),
+    },
+  }
+}
+
+export async function unblockUserByToken(authorizationHeader, blockedUserId) {
+  const auth = await getAuthenticatedUser(authorizationHeader)
+
+  if (auth.error) return auth.error
+
+  if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
+    return { status: 400, body: { message: 'Invalid user id.' } }
+  }
+
+  const friendship = await Friendship.findOneAndDelete({
+    participantKey: getParticipantKey(auth.user.id, blockedUserId),
+    status: 'blocked',
+    blockedBy: auth.user.id,
+  })
+
+  if (!friendship) {
+    return { status: 404, body: { message: 'Blocked user not found.' } }
+  }
+
+  return {
+    status: 200,
+    body: { message: 'User unblocked.' },
+  }
+}
+
+export async function listBlockedUsersByToken(authorizationHeader) {
+  const auth = await getAuthenticatedUser(authorizationHeader)
+
+  if (auth.error) return auth.error
+
+  const blockedRelationships = await Friendship.find({
+    status: 'blocked',
+    blockedBy: auth.user.id,
+  })
+    .populate('requester')
+    .populate('recipient')
+    .sort({ updatedAt: -1 })
+
+  const blockedUsers = blockedRelationships
+    .map((friendship) => {
+      const blockedUser =
+        String(friendship.requester.id) === String(auth.user.id)
+          ? friendship.recipient
+          : friendship.requester
+
+      return getPublicUser(blockedUser)
+    })
+    .filter(Boolean)
+
+  return {
+    status: 200,
+    body: { blockedUsers },
+  }
+}
+
 export async function getFriendStatusByToken(authorizationHeader, friendId) {
   const auth = await getAuthenticatedUser(authorizationHeader)
 
@@ -184,6 +295,8 @@ export async function getFriendStatusByToken(authorizationHeader, friendId) {
     body: {
       status: friendship.status,
       direction: String(friendship.requester) === String(auth.user.id) ? 'outgoing' : 'incoming',
+      blockedByMe:
+        friendship.status === 'blocked' && String(friendship.blockedBy) === String(auth.user.id),
       requestId: friendship.id,
     },
   }

@@ -17,6 +17,7 @@ type NearbyUser = {
   id: string
   name: string
   tags: string[]
+  allTags: string[]
   distance: number
   image?: string
   bio: string
@@ -90,6 +91,7 @@ export default function Home() {
               id: String(user.id),
               name: user.profile?.fullName || 'AroundU User',
               tags: sharedInterests.length ? sharedInterests : profileInterests,
+              allTags: profileInterests,
               distance: Number(user.distance ?? 0),
               image: user.profile?.profileImage || undefined,
               bio:
@@ -238,7 +240,7 @@ export default function Home() {
                     userId: user.id,
                     token: currentUser.token,
                     fullName: user.name,
-                    interests: JSON.stringify(user.tags),
+                    interests: JSON.stringify(user.allTags),
                     bio: user.bio,
                     friendStatus: user.friendStatus,
                     ...(user.image ? { profileImage: user.image } : {}),

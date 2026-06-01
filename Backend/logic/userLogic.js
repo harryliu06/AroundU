@@ -272,6 +272,7 @@ export async function listNearbyUsersByToken(authorizationHeader) {
             friendStatus: friendshipByUserId.get(String(user.id)) || 'none',
           }
         })
+        .filter((user) => user.friendStatus !== 'blocked')
         .filter((user) => !currentInterests.length || user.sharedInterests.length > 0)
         .sort((firstUser, secondUser) => secondUser.matchScore - firstUser.matchScore)
         .slice(0, 20)

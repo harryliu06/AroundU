@@ -9,6 +9,7 @@ const friendshipSchema = new mongoose.Schema(
       enum: ['pending', 'accepted', 'blocked'],
       default: 'pending',
     },
+    blockedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
     participantKey: { type: String, required: true, unique: true },
   },
   { timestamps: true }
@@ -16,5 +17,6 @@ const friendshipSchema = new mongoose.Schema(
 
 friendshipSchema.index({ recipient: 1, status: 1 })
 friendshipSchema.index({ requester: 1, status: 1 })
+friendshipSchema.index({ blockedBy: 1, status: 1 })
 
 export default mongoose.model('Friendship', friendshipSchema)

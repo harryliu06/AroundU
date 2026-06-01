@@ -1,11 +1,14 @@
 import {
   acceptFriendRequestByToken,
   addFriendByToken,
+  blockUserByToken,
   getFriendStatusByToken,
+  listBlockedUsersByToken,
   listFriendRequestsByToken,
   listFriendsByToken,
   listMessagesByToken,
   sendMessageByToken,
+  unblockUserByToken,
 } from '../logic/socialLogic.js'
 
 export async function addFriend(req, res) {
@@ -38,6 +41,39 @@ export async function getFriendStatus(req, res) {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error while checking friend status.' })
+  }
+}
+
+export async function blockUser(req, res) {
+  try {
+    const result = await blockUserByToken(req.headers.authorization, req.params.userId)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while blocking user.' })
+  }
+}
+
+export async function unblockUser(req, res) {
+  try {
+    const result = await unblockUserByToken(req.headers.authorization, req.params.userId)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while unblocking user.' })
+  }
+}
+
+export async function listBlockedUsers(req, res) {
+  try {
+    const result = await listBlockedUsersByToken(req.headers.authorization)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while fetching blocked users.' })
   }
 }
 

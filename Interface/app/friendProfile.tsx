@@ -17,13 +17,7 @@ import { apiFetch } from '../utils/api'
 const COVER_IMAGE =
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
 
-const GALLERY_IMAGES = [
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
-  'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=400&q=80',
-]
-
-type FriendStatus = 'none' | 'pending' | 'accepted'
+type FriendStatus = 'none' | 'pending' | 'accepted' | 'blocked'
 
 export default function UserProfile() {
   const params = useLocalSearchParams<{
@@ -38,7 +32,9 @@ export default function UserProfile() {
   const [friendMessage, setFriendMessage] = useState<string | null>(null)
   const [isAddingFriend, setIsAddingFriend] = useState(false)
   const [friendStatus, setFriendStatus] = useState<FriendStatus>(
-    params.friendStatus === 'accepted' || params.friendStatus === 'pending'
+    params.friendStatus === 'accepted' ||
+      params.friendStatus === 'pending' ||
+      params.friendStatus === 'blocked'
       ? params.friendStatus
       : 'none'
   )
@@ -89,7 +85,7 @@ export default function UserProfile() {
         })
         const data = await response.json()
 
-        if (response.ok && ['none', 'pending', 'accepted'].includes(data.status)) {
+        if (response.ok && ['none', 'pending', 'accepted', 'blocked'].includes(data.status)) {
           setFriendStatus(data.status)
         }
       } finally {
@@ -105,9 +101,17 @@ export default function UserProfile() {
       ? 'Friends'
       : friendStatus === 'pending'
         ? 'Requested'
-        : 'Add Friend'
+        : friendStatus === 'blocked'
+          ? 'Blocked'
+          : 'Add Friend'
   const friendButtonIcon =
-    friendStatus === 'accepted' ? 'check' : friendStatus === 'pending' ? 'clock-o' : 'user-plus'
+    friendStatus === 'accepted'
+      ? 'check'
+      : friendStatus === 'pending'
+        ? 'clock-o'
+        : friendStatus === 'blocked'
+          ? 'ban'
+          : 'user-plus'
 
   const handleAddFriend = async () => {
     if (!params.userId || !params.token) {
@@ -136,6 +140,40 @@ export default function UserProfile() {
 
       setFriendMessage(data.message || 'Friend request sent.')
       setFriendStatus(data.friendship?.status === 'accepted' ? 'accepted' : 'pending')
+    } catch {
+      setFriendMessage('Network error. Please try again later.')
+    } finally {
+      setIsAddingFriend(false)
+    }
+  }
+
+  const handleBlockUser = async () => {
+    if (!params.userId || !params.token) {
+      setFriendMessage('Friend data is missing.')
+      return
+    }
+
+    if (friendStatus === 'blocked') return
+
+    setIsAddingFriend(true)
+    setFriendMessage(null)
+
+    try {
+      const response = await apiFetch(`/blocked-users/${params.userId}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${params.token}`,
+        },
+      })
+      const data = await response.json()
+
+      if (!response.ok) {
+        setFriendMessage(data.message || 'Could not block user.')
+        return
+      }
+
+      setFriendStatus('blocked')
+      setFriendMessage(data.message || 'User blocked.')
     } catch {
       setFriendMessage('Network error. Please try again later.')
     } finally {
@@ -197,9 +235,15 @@ export default function UserProfile() {
 
             <Pressable
               style={({ pressed }) => [styles.secondaryButton, pressed && styles.buttonInactive]}
+              disabled={isAddingFriend || isCheckingStatus || friendStatus === 'blocked'}
+              onPress={() => {
+                void handleBlockUser()
+              }}
             >
               <FontAwesome name="ban" size={15} color="#6b7280" style={styles.buttonIcon} />
-              <Text style={styles.mutedButtonText}>Block</Text>
+              <Text style={styles.mutedButtonText}>
+                {friendStatus === 'blocked' ? 'Blocked' : 'Block'}
+              </Text>
             </Pressable>
           </View>
 
@@ -231,13 +275,6 @@ export default function UserProfile() {
                 </View>
               ))}
             </View>
-          </View>
-
-          <Text style={styles.sectionTitle}>Photos</Text>
-          <View style={styles.galleryRow}>
-            {GALLERY_IMAGES.map((image) => (
-              <Image key={image} source={{ uri: image }} style={styles.galleryImage} />
-            ))}
           </View>
         </View>
       </ScrollView>
@@ -391,17 +428,6 @@ const styles = StyleSheet.create({
     lineHeight: 17,
     color: '#0369a1',
     fontWeight: '700',
-  },
-  galleryRow: {
-    width: '100%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  galleryImage: {
-    width: '31%',
-    aspectRatio: 1,
-    borderRadius: 12,
-    backgroundColor: '#e5e7eb',
   },
   buttonInactive: {
     opacity: 0.72,

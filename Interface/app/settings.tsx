@@ -61,6 +61,10 @@ export default function Settings() {
     router.push('/notifications')
   }
 
+  const openBlockedUsers = () => {
+    router.push('/blockedUsers')
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -111,6 +115,12 @@ export default function Settings() {
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.panel}>
             <SettingRow icon="shield" title="Privacy" value="Control who can find you" />
+            <SettingRow
+              icon="ban"
+              title="Blocked Users"
+              value="Manage blocked profiles"
+              onPress={openBlockedUsers}
+            />
             <SettingRow icon="question-circle-o" title="Help" value="Support and app info" />
           </View>
         </View>

@@ -14,11 +14,14 @@ import {
 import {
     acceptFriendRequest,
     addFriend,
+    blockUser,
     getFriendStatus,
+    listBlockedUsers,
     listFriendRequests,
     listFriends,
     listMessages,
     sendMessage,
+    unblockUser,
 } from './controllers/socialController.js';
 
 const app = express();
@@ -39,6 +42,9 @@ app.get('/nearby-users', nearbyUsers);
 app.get('/friends', listFriends);
 app.post('/friends/:friendId', addFriend);
 app.get('/friends/:friendId/status', getFriendStatus);
+app.get('/blocked-users', listBlockedUsers);
+app.post('/blocked-users/:userId', blockUser);
+app.delete('/blocked-users/:userId', unblockUser);
 app.get('/friend-requests', listFriendRequests);
 app.post('/friend-requests/:requestId/accept', acceptFriendRequest);
 app.get('/chats/:friendId/messages', listMessages);
