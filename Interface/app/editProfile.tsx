@@ -15,7 +15,7 @@ import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
 import { getAuthSession, getHomeParams, saveAuthSession } from '../utils/authStorage'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 
 type ProfileForm = {
   fullName: string
@@ -137,7 +137,7 @@ export default function EditProfile() {
     setIsSubmitting(true)
 
     try {
-      const response = await apiFetch('/me', {
+      const { response, data } = await apiJson('/me', {
         method: 'PATCH',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -153,7 +153,6 @@ export default function EditProfile() {
           },
         }),
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setMessage(data.message || 'Could not update profile.')

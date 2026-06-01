@@ -11,7 +11,7 @@ import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
 import { getAuthSession } from '../utils/authStorage'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 
 type Friend = {
   id: string
@@ -57,12 +57,11 @@ export default function Messages() {
       }
 
       try {
-        const response = await apiFetch('/friends', {
+        const { response, data } = await apiJson('/friends', {
           headers: {
             Authorization: `Bearer ${authToken}`,
           },
         })
-        const data = await response.json()
 
         if (!response.ok) {
           setMessage(data.message || 'Could not load friends.')

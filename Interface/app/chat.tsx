@@ -15,7 +15,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 
 type Message = {
   id: string
@@ -113,12 +113,11 @@ export default function Chat() {
       }
 
       try {
-        const response = await apiFetch(`/chats/${friendId}/messages`, {
+        const { response, data } = await apiJson(`/chats/${friendId}/messages`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         })
-        const data = await response.json()
 
         if (!response.ok) {
           setMessages([])
@@ -155,7 +154,7 @@ export default function Chat() {
     if (!canPersistChat) return false
 
     try {
-      const response = await apiFetch(`/chats/${friendId}/messages`, {
+      const { response, data } = await apiJson(`/chats/${friendId}/messages`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
@@ -163,7 +162,6 @@ export default function Chat() {
         },
         body: JSON.stringify({ text }),
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setStatusMessage(data.message || 'Message was not saved.')

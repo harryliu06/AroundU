@@ -12,7 +12,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 
 const COVER_IMAGE =
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
@@ -78,12 +78,11 @@ export default function UserProfile() {
       setIsCheckingStatus(true)
 
       try {
-        const response = await apiFetch(`/friends/${params.userId}/status`, {
+        const { response, data } = await apiJson(`/friends/${params.userId}/status`, {
           headers: {
             Authorization: `Bearer ${params.token}`,
           },
         })
-        const data = await response.json()
 
         if (response.ok && ['none', 'pending', 'accepted', 'blocked'].includes(data.status)) {
           setFriendStatus(data.status)
@@ -125,13 +124,12 @@ export default function UserProfile() {
     setFriendMessage(null)
 
     try {
-      const response = await apiFetch(`/friends/${params.userId}`, {
+      const { response, data } = await apiJson(`/friends/${params.userId}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${params.token}`,
         },
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setFriendMessage(data.message || 'Could not add friend.')
@@ -159,13 +157,12 @@ export default function UserProfile() {
     setFriendMessage(null)
 
     try {
-      const response = await apiFetch(`/blocked-users/${params.userId}`, {
+      const { response, data } = await apiJson(`/blocked-users/${params.userId}`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${params.token}`,
         },
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setFriendMessage(data.message || 'Could not block user.')

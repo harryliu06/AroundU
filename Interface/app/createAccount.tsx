@@ -14,7 +14,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import { router, useLocalSearchParams } from 'expo-router'
 import { getHomeParams, saveAuthSession } from '../utils/authStorage'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 
 type AccountForm = {
   email: string
@@ -101,7 +101,7 @@ export default function CreateAccount() {
     setIsSubmitting(true)
 
     try {
-      const response = await apiFetch('/signup', {
+      const { response, data } = await apiJson('/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -118,8 +118,6 @@ export default function CreateAccount() {
           },
         }),
       })
-
-      const data = await response.json()
 
       if (!response.ok) {
         setMessage(data.message || 'Could not create account.')

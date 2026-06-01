@@ -11,7 +11,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 import { getAuthSession } from '../utils/authStorage'
 
 type FriendRequest = {
@@ -45,12 +45,11 @@ export default function Notifications() {
 
   const loadRequests = async (authToken: string) => {
     try {
-      const response = await apiFetch('/friend-requests', {
+      const { response, data } = await apiJson('/friend-requests', {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setMessage(data.message || 'Could not load friend requests.')
@@ -87,13 +86,12 @@ export default function Notifications() {
     setAcceptingId(requestId)
 
     try {
-      const response = await apiFetch(`/friend-requests/${requestId}/accept`, {
+      const { response, data } = await apiJson(`/friend-requests/${requestId}/accept`, {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setMessage(data.message || 'Could not accept request.')

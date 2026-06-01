@@ -16,7 +16,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome'
 
 import { router } from 'expo-router'
 import { getHomeParams, saveAuthSession } from '../utils/authStorage'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 
 type LoginForm = {
   email: string
@@ -49,15 +49,13 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await apiFetch('/login', {
+      const { response, data } = await apiJson('/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(form),
       })
-
-      const data = await response.json()
 
       if (!response.ok) {
         setError(data.message || 'An error occurred while logging in.')

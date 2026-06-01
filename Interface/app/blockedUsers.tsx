@@ -11,7 +11,7 @@ import {
 import { StatusBar } from 'expo-status-bar'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 import { getAuthSession } from '../utils/authStorage'
 
 type BlockedUser = {
@@ -42,12 +42,11 @@ export default function BlockedUsers() {
 
   const loadBlockedUsers = async (authToken: string) => {
     try {
-      const response = await apiFetch('/blocked-users', {
+      const { response, data } = await apiJson('/blocked-users', {
         headers: {
           Authorization: `Bearer ${authToken}`,
         },
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setMessage(data.message || 'Could not load blocked users.')
@@ -84,13 +83,12 @@ export default function BlockedUsers() {
     setUnblockingId(userId)
 
     try {
-      const response = await apiFetch(`/blocked-users/${userId}`, {
+      const { response, data } = await apiJson(`/blocked-users/${userId}`, {
         method: 'DELETE',
         headers: {
           Authorization: `Bearer ${token}`,
         },
       })
-      const data = await response.json()
 
       if (!response.ok) {
         setMessage(data.message || 'Could not unblock user.')

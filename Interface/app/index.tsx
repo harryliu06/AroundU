@@ -7,7 +7,7 @@ import {
   getHomeParams,
   saveAuthSession,
 } from '../utils/authStorage'
-import { apiFetch } from '../utils/api'
+import { apiJson } from '../utils/api'
 
 export default function Index() {
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
@@ -23,12 +23,11 @@ export default function Index() {
       }
 
       try {
-        const response = await apiFetch('/me', {
+        const { response, data } = await apiJson('/me', {
           headers: {
             Authorization: `Bearer ${session.token}`,
           },
         })
-        const data = await response.json()
 
         if (!response.ok) {
           await clearAuthSession()

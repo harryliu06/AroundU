@@ -18,3 +18,23 @@ export function apiFetch(path: string, options?: RequestInit) {
     headers,
   })
 }
+
+export async function apiJson(path: string, options?: RequestInit) {
+  const response = await apiFetch(path, options)
+  const text = await response.text()
+
+  if (!text) {
+    return { response, data: {} }
+  }
+
+  try {
+    return { response, data: JSON.parse(text) }
+  } catch {
+    return {
+      response,
+      data: {
+        message: text,
+      },
+    }
+  }
+}
