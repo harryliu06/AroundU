@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
-import User from '../database/user.js'
-import { getUserByToken, loginUser, signupUser } from '../logic/userLogic.js'
+import User from '../../database/user.js'
+import { getUserByToken, loginUser, signupUser } from '../../logic/userLogic.js'
 
 test('signupUser rejects missing email and password', async () => {
   const result = await signupUser({
