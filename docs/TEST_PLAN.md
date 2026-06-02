@@ -73,13 +73,14 @@
 | Harry   | Auth unit & integration tests (signup, login, token expiry, protected routes)   |
 | Swaraag | Location logic unit tests; radius filtering integration tests                   |
 | Jacob   | Chat integration tests; message ordering and persistence                        |
-| Dorian  | Blocking & privacy enforcement integration tests; frontend component unit tests |
+| Dorian  | Blocking & privacy enforcement. Friending & Accepting Friends                   |
 | Tatiana | Database persistence and security                                               |
 
 
 
 # Part 2
 
+# 2.3 Test by Category
 ## Auth testing responsibility: signup, login, token expiry, and protected routes (Harry)
 
 Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
@@ -89,6 +90,16 @@ Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
 | Unit        |     6 | `signupUser rejects missing email and password`<br>`signupUser accepts a valid email format`<br>`loginUser rejects unknown email`<br>`getUserByToken rejects missing authorization token`                        |
 | Integration |     4 | `POST /signup creates an account and returns auth data`<br>`POST /login returns a token for valid credentials`<br>`GET /me rejects missing authorization token`<br>`GET /me rejects expired authorization token` |
 
+## Blocking, privacy, friending, and accepting testing responsibility: (Dorian)
+
+Last updated: June 1, 2026 (commit: 573a57fc57601e3aa1a77653372aede0b09091dc)
+
+| Category    | Count | Example                                                                                                                                                                                                          |
+| ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit        |      |                         |
+| Integration |     |  |
+
+# 2.4
 ## Where the Tests Live + How to Run Them
 
 Test folder structure:
@@ -126,7 +137,7 @@ Approximate run-times:
 | Integration |  ~1 second | local + CI    |
 
 
-
+# 2.5
 ## Coverage Achieved (IN PROGRESS)
 
 Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
