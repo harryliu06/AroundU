@@ -29,28 +29,28 @@
 
 # 1.3 Risks & Priorities
 
-| Area | Why it's risky / costly | Priority (H / M / L) |
-| --- | --- | --- |
-| Concurrent signups → duplicate emails | Race condition; data corruption | H |
-| Auth token expiry edge cases | Security implications | H |
-| Exact GPS coordinates leaking to blocked/unmatched users | Direct stalking/harassment risk; stated in project brief as a top concern | H |
-| Block bypass — blocked user can still query target's data | Privacy/safety failure; could expose users to harm | H |
-| Location radius query returning wrong users | Core feature failure; erodes trust immediately | H |
-| Chat messages lost or duplicated under concurrent send | Data integrity; confusing user experience | M |
-| Interest filter returning no results when matches exist | Discoverable bug; users churn | M |
-| Map directions linking to wrong coordinates | Meetup failure; user frustration | M |
-| Pagination on large user lists | Cosmetic; recoverable by refreshing | L |
-| Profile photo upload edge cases | Non-critical; fallback to default avatar | L |
-| Message bar raising up a bit after the keyboard is dismissed in the chat page | Cosmetic; recoverable | L |
+| Area                                                                          | Why it's risky / costly                                                   | Priority (H / M / L) |
+| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------- |
+| Concurrent signups → duplicate emails                                         | Race condition; data corruption                                           | H                    |
+| Auth token expiry edge cases                                                  | Security implications                                                     | H                    |
+| Exact GPS coordinates leaking to blocked/unmatched users                      | Direct stalking/harassment risk; stated in project brief as a top concern | H                    |
+| Block bypass — blocked user can still query target's data                     | Privacy/safety failure; could expose users to harm                        | H                    |
+| Location radius query returning wrong users                                   | Core feature failure; erodes trust immediately                            | H                    |
+| Chat messages lost or duplicated under concurrent send                        | Data integrity; confusing user experience                                 | M                    |
+| Interest filter returning no results when matches exist                       | Discoverable bug; users churn                                             | M                    |
+| Map directions linking to wrong coordinates                                   | Meetup failure; user frustration                                          | M                    |
+| Pagination on large user lists                                                | Cosmetic; recoverable by refreshing                                       | L                    |
+| Profile photo upload edge cases                                               | Non-critical; fallback to default avatar                                  | L                    |
+| Message bar raising up a bit after the keyboard is dismissed in the chat page | Cosmetic; recoverable                                                     | L                    |
 
 # 1.4 Strategy — Test Types and Approach per Component
 
-| Component | Test Types You'll Apply | Framework | Why This Fits |
-| --- | --- | --- | --- |
-| **React Native frontend** | Manual UI testing, component-level validation checks | Expo Go / Android Emulator, React Native testing later if time allows | The app is mobile-first, so testing on an actual Android device/emulator best matches the user experience. |
-| **Express backend** | Unit tests for logic, integration tests for API routes | Jest + Supertest | Jest can test backend functions, while Supertest can send requests to Express endpoints like `/signup` and `/login`. |
-| **Database** | Integration tests with test MongoDB database | MongoDB Atlas test database / Mongoose | AroundU needs to confirm user accounts persist and can be retrieved after signup/login. |
-| **Cross-cutting concurrency/load** | Basic API response-time testing | Postman Runner or k6 if time allows | Signup/login and read endpoints should remain responsive under repeated local requests. |
+| Component                          | Test Types You'll Apply                                | Framework                                                             | Why This Fits                                                                                                        |
+| ---------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| **React Native frontend**          | Manual UI testing, component-level validation checks   | Expo Go / Android Emulator, React Native testing later if time allows | The app is mobile-first, so testing on an actual Android device/emulator best matches the user experience.           |
+| **Express backend**                | Unit tests for logic, integration tests for API routes | Jest + Supertest                                                      | Jest can test backend functions, while Supertest can send requests to Express endpoints like `/signup` and `/login`. |
+| **Database**                       | Integration tests with test MongoDB database           | MongoDB Atlas test database / Mongoose                                | AroundU needs to confirm user accounts persist and can be retrieved after signup/login.                              |
+| **Cross-cutting concurrency/load** | Basic API response-time testing                        | Postman Runner or k6 if time allows                                   | Signup/login and read endpoints should remain responsive under repeated local requests.                              |
 
 # 1.5 Environment & Assumptions
 
@@ -68,10 +68,87 @@
 
 # 1.6 Member Ownership of Test Categories / Components
 
-| Member    | Test Categories / Components                                                                 |
-|-----------|----------------------------------------------------------------------------------------------|
-| Harry     | Auth unit & integration tests (signup, login, token expiry, protected routes)             |
-| Swaraag   | Location logic unit tests; radius filtering integration tests                            |
-| Jacob     | Chat integration tests; message ordering and persistence                                   |
-| Dorian    | Blocking & privacy enforcement integration tests; frontend component unit tests          |
-| Tatiana   | Database persistence and security                                                          |
+| Member  | Test Categories / Components                                                    |
+| ------- | ------------------------------------------------------------------------------- |
+| Harry   | Auth unit & integration tests (signup, login, token expiry, protected routes)   |
+| Swaraag | Location logic unit tests; radius filtering integration tests                   |
+| Jacob   | Chat integration tests; message ordering and persistence                        |
+| Dorian  | Blocking & privacy enforcement integration tests; frontend component unit tests |
+| Tatiana | Database persistence and security                                               |
+
+
+
+# Part 2
+
+## 2.1 Required Minimums
+
+| Category | Required? | Minimum | Implemented for Auth | Status |
+| --- | --- | ---: | ---: | --- |
+| Unit tests | Required | 5 | 6 | Pass |
+| Integration tests | Required | 3 | 4 | Pass |
+
+Auth testing responsibility: signup, login, token expiry, and protected routes.
+
+## 2.3 Tests by Category
+
+Last updated: June 1, 2026 (commit pending)
+
+| Category | Count | 2+ examples |
+| --- | ---: | --- |
+| Unit | 6 | `signupUser rejects missing email and password`<br>`signupUser accepts a valid email format`<br>`loginUser rejects unknown email`<br>`getUserByToken rejects missing authorization token` |
+| Integration | 4 | `POST /signup creates an account and returns auth data`<br>`POST /login returns a token for valid credentials`<br>`GET /me rejects missing authorization token`<br>`GET /me rejects expired authorization token` |
+
+## 2.4 Where the Tests Live + How to Run Them
+
+Test folder structure:
+
+```txt
+Backend/
+  test/
+    unit/
+      userLogic.test.js
+    integration/
+      authRoutes.test.js
+```
+
+Run commands the TA can copy-paste on a fresh clone:
+
+```bash
+cd Backend
+npm install
+npm test
+```
+
+Optional category-specific commands:
+
+```bash
+npm run test:unit
+npm run test:integration
+npm run test:coverage
+```
+
+Approximate run-times:
+
+| Category | Time | Where it runs |
+| --- | ---: | --- |
+| Unit | < 1 second | local + CI |
+| Integration | ~1 second | local + CI |
+
+Notes:
+- Tests use Node's built-in test runner (`node --test`).
+- Auth unit tests mock database methods where needed, so they do not require a live MongoDB Atlas connection.
+- Auth integration tests run against the Express app through HTTP on a temporary local port. They also mock model methods, so they test route behavior without touching the production database.
+
+## 2.5 Coverage Achieved
+
+Last updated: June 1, 2026 (commit pending)
+
+| Test type | Tool | Coverage % |
+| --- | --- | ---: |
+| Unit | Node test runner with `--experimental-test-coverage` | 62.84% |
+| Integration | Node test runner with `--experimental-test-coverage` | 40.90% |
+| Combined (overall) | `npm run test:coverage` | 47.09% |
+
+Coverage gaps:
+- Current auth tests focus on signup/login/token/protected-route behavior.
+- Social features, chat behavior, map behavior, and frontend UI behavior are not covered by Harry's auth test section.
