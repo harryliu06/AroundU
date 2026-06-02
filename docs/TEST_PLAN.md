@@ -92,12 +92,12 @@ Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
 
 ## Blocking, privacy, friending, and accepting testing responsibility: (Dorian)
 
-Last updated: June 1, 2026 (commit: 573a57fc57601e3aa1a77653372aede0b09091dc)
+Last updated: June 1, 2026 (commit: 6913b41dfe3c9d95e433abe0b5aa6b7984ef7ccf)
 
 | Category    | Count | Example                                                                                                                                                                                                          |
 | ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit        |      |                         |
-| Integration |     |  |
+| Unit        |    20  | `blockUser calls blockUserByToken and returns its result`<br>`blockUser returns 500 when blockUserByToken throws`<br>`addFriend calls addFriendByToken and returns its result`|
+| Integration |    5   | `a blocked user cannot send a friend request to the blocker`<br>`friends can send and list messages`<br>`blocking an existing friend prevents further messaging`|
 
 # 2.4
 ## Where the Tests Live + How to Run Them
