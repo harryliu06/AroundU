@@ -29,28 +29,28 @@
 
 # 1.3 Risks & Priorities
 
-| Area                                                                          | Why it's risky / costly                                                   | Priority (H / M / L) |
-| ----------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------- |
-| Concurrent signups → duplicate emails                                         | Race condition; data corruption                                           | H                    |
-| Auth token expiry edge cases                                                  | Security implications                                                     | H                    |
-| Exact GPS coordinates leaking to blocked/unmatched users                      | Direct stalking/harassment risk; stated in project brief as a top concern | H                    |
-| Block bypass — blocked user can still query target's data                     | Privacy/safety failure; could expose users to harm                        | H                    |
-| Location radius query returning wrong users                                   | Core feature failure; erodes trust immediately                            | H                    |
-| Chat messages lost or duplicated under concurrent send                        | Data integrity; confusing user experience                                 | M                    |
-| Interest filter returning no results when matches exist                       | Discoverable bug; users churn                                             | M                    |
-| Map directions linking to wrong coordinates                                   | Meetup failure; user frustration                                          | M                    |
-| Pagination on large user lists                                                | Cosmetic; recoverable by refreshing                                       | L                    |
-| Profile photo upload edge cases                                               | Non-critical; fallback to default avatar                                  | L                    |
-| Message bar raising up a bit after the keyboard is dismissed in the chat page | Cosmetic; recoverable                                                     | L                    |
-
+| Area                                               | Why it's risky / costly                                                                                                | Priority (H / M / L) |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------- |
+| Signup/login failures                              | Users cannot access the app if account creation, login, or token handling breaks, blocking all other features.         | H                    |
+| Duplicate emails during signup                     | Creating multiple accounts for one email might cause identity and data consistency problems.                           | H                    |
+| Auth token expiry edge cases                       | Expired or invalid tokens could incorrectly lock users out or allow unauthorized access to protected routes.           | H                    |
+| Location radius filtering returns wrong users      | AroundU's core feature depends on showing nearby users correctly. Wrong radius logic breaks discovery of users.        | H                    |
+| Interest/location matching shows irrelevant people | Users may not find meaningful nearby connections if filtering logic does not match shared hobbies/location correctly.  | H                    |
+| Blocked user can still view/contact target         | Major privacy and safety risk. Blocking must prevent discovery, profile access, and messaging where applicable.        | H                    |
+| Privacy controls fail to hide sensitive data       | Location/profile data exposure can create safety concerns, especially for student and young professional users.        | H                    |
+| Database persistence failure                       | Signup, profile, friends, and chat rely on MongoDB. If writes do not persist, user data can be lost.                   | H                    |
+| Password storage/security mistakes                 | Plain-text or leaked passwords would be a serious security issue. Passwords must be hashed and never returned by APIs. | H                    |
+| Chat messages lost or loaded out of order          | Users expect friend chat history to persist. Lost or misordered messages make conversations unreliable.                | M                    |
+| Chat access after users leave radius               | Friends should retain chat history even after leaving the nearby radius. Losing access would break the friend system.  | M                    |
+| Frontend component/layout issues                   | UI problems can make forms, chat, or settings harder to use, but most are recoverable.                                 | L                    |
 # 1.4 Strategy — Test Types and Approach per Component
 
-| Component                          | Test Types You'll Apply                                | Framework                                                             | Why This Fits                                                                                                        |
-| ---------------------------------- | ------------------------------------------------------ | --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **React Native frontend**          | Manual UI testing, component-level validation checks   | Expo Go / Android Emulator, React Native testing later if time allows | The app is mobile-first, so testing on an actual Android device/emulator best matches the user experience.           |
-| **Express backend**                | Unit tests for logic, integration tests for API routes | Jest + Supertest                                                      | Jest can test backend functions, while Supertest can send requests to Express endpoints like `/signup` and `/login`. |
-| **Database**                       | Integration tests with test MongoDB database           | MongoDB Atlas test database / Mongoose                                | AroundU needs to confirm user accounts persist and can be retrieved after signup/login.                              |
-| **Cross-cutting concurrency/load** | Basic API response-time testing                        | Postman Runner or k6 if time allows                                   | Signup/login and read endpoints should remain responsive under repeated local requests.                              |
+| Component                          | Test Types You'll Apply                                          | Framework                                 | Why This Fits                                                                                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **React Native Frontend**          | Manual UI testing, component-level validation checks             | Expo Go / Android Emulator                | AroundU is mobile-first, so testing on a real device or emulator best matches login, profile, chat, settings, and navigation behavior.              |
+| **Express Backend Auth**           | Unit tests for auth logic; integration tests for auth API routes | Node built-in test runner (`node --test`) | Our current auth tests use Node's built-in runner to test signup, login, token expiry, and protected routes without requiring extra test libraries. |
+| **Database**                       | Integration tests with test MongoDB database                     | MongoDB Atlas test database / Mongoose    | AroundU needs to confirm user accounts persist and can be retrieved after signup/login.                                                             |
+| **Cross-cutting concurrency/load** | Basic API response-time testing                                  | Postman Runner or k6 if time allows       | Signup/login and read endpoints should remain responsive under repeated local requests.                                                             |
 
 # 1.5 Environment & Assumptions
 
