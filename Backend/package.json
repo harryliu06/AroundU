@@ -5,7 +5,7 @@
   },
   "scripts": {
     "start": "node server.js",
-    "test": "node --test"
+    "test": "node --experimental-test-module-mocks --test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
