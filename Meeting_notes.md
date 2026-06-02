@@ -92,6 +92,11 @@
 - The team met to discuss the testing plan. Specifically for part 1. The rest is an attempt to figure out how to run the code and open the program that one of us has begun. Must know as to be able to divide the work for testing. As well as assigned testing roles for specific areas.
   - Harry: Auth unit & integration tests (signup, login, token expiry, protected routes)
   - Swaraag: Location logic unit tests; radius filtering integration tests
-  - Jacob: Chat integration tests; message ordering and persistence
+  - Jacob: Chat integration tests; message ordering and persistence~~
   - Dorian: Blocking & privacy enforcement. Friending & Accepting Friends
   - Tatiana: Database persistence and security
+ 
+Update:
+- Chat integration and messages done by Dorian. Accidentally tested by testing the whole module. Jacob will test a different module.
+- Swaraag and Tatiana's communication status: Poor.
+  - Roles will be reassigned to Jacob under time constraints.
