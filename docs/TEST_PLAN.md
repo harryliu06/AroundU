@@ -90,7 +90,7 @@ Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
 | Unit        |     6 | `signupUser rejects missing email and password`<br>`signupUser accepts a valid email format`<br>`loginUser rejects unknown email`<br>`getUserByToken rejects missing authorization token`                        |
 | Integration |     4 | `POST /signup creates an account and returns auth data`<br>`POST /login returns a token for valid credentials`<br>`GET /me rejects missing authorization token`<br>`GET /me rejects expired authorization token` |
 
-## Blocking, privacy, friending, and accepting testing responsibility. Messages too: (Dorian)
+## Blocking & privacy enforcement. Friending & Accepting Friends\ Chat integration tests; message ordering and persistence: (Dorian)
 
 Last updated: June 1, 2026 (commit: 6913b41dfe3c9d95e433abe0b5aa6b7984ef7ccf)
 
@@ -98,6 +98,15 @@ Last updated: June 1, 2026 (commit: 6913b41dfe3c9d95e433abe0b5aa6b7984ef7ccf)
 | ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Unit        |    20  | `blockUser calls blockUserByToken and returns its result`<br>`blockUser returns 500 when blockUserByToken throws`<br>`addFriend calls addFriendByToken and returns its result`|
 | Integration |    5   | `a blocked user cannot send a friend request to the blocker`<br>`friends can send and list messages`<br>`blocking an existing friend prevents further messaging`|
+
+## Location logic unit tests; radius filtering integration tests\ Database persistence and security: (Jacob)
+
+Last updated: June _, 2026 (commit: _)
+
+| Category    | Count | Example                                                                                                                                                                                                          |
+| ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit        |       | `name of test`<br>`name of test`<br>`name of test`|
+| Integration |       | `name of test`<br>`name of test`<br>`name of test`|
 
 # 2.4
 ## Where the Tests Live + How to Run Them
