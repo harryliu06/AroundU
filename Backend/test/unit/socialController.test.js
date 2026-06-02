@@ -19,7 +19,7 @@ function mockLogicFunction(name) {
   }
 }
 
-mock.module(new URL('../logic/socialLogic.js', import.meta.url).href, {
+mock.module(new URL('../../logic/socialLogic.js', import.meta.url).href, {
   namedExports: {
     acceptFriendRequestByToken: mockLogicFunction('acceptFriendRequestByToken'),
     addFriendByToken: mockLogicFunction('addFriendByToken'),
@@ -45,7 +45,7 @@ const {
   listMessages,
   sendMessage,
   unblockUser,
-} = await import('../controllers/socialController.js')
+} = await import('../../controllers/socialController.js')
 
 function mockResponse() {
   return {

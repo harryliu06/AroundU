@@ -80,25 +80,16 @@
 
 # Part 2
 
-## 2.1 Required Minimums
+## Auth testing responsibility: signup, login, token expiry, and protected routes (Harry)
 
-| Category | Required? | Minimum | Implemented for Auth | Status |
-| --- | --- | ---: | ---: | --- |
-| Unit tests | Required | 5 | 6 | Pass |
-| Integration tests | Required | 3 | 4 | Pass |
+Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
 
-Auth testing responsibility: signup, login, token expiry, and protected routes.
+| Category    | Count | Example                                                                                                                                                                                                          |
+| ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit        |     6 | `signupUser rejects missing email and password`<br>`signupUser accepts a valid email format`<br>`loginUser rejects unknown email`<br>`getUserByToken rejects missing authorization token`                        |
+| Integration |     4 | `POST /signup creates an account and returns auth data`<br>`POST /login returns a token for valid credentials`<br>`GET /me rejects missing authorization token`<br>`GET /me rejects expired authorization token` |
 
-## 2.3 Tests by Category
-
-Last updated: June 1, 2026 (commit pending)
-
-| Category | Count | 2+ examples |
-| --- | ---: | --- |
-| Unit | 6 | `signupUser rejects missing email and password`<br>`signupUser accepts a valid email format`<br>`loginUser rejects unknown email`<br>`getUserByToken rejects missing authorization token` |
-| Integration | 4 | `POST /signup creates an account and returns auth data`<br>`POST /login returns a token for valid credentials`<br>`GET /me rejects missing authorization token`<br>`GET /me rejects expired authorization token` |
-
-## 2.4 Where the Tests Live + How to Run Them
+## Where the Tests Live + How to Run Them
 
 Test folder structure:
 
@@ -111,7 +102,7 @@ Backend/
       authRoutes.test.js
 ```
 
-Run commands the TA can copy-paste on a fresh clone:
+Run commands:
 
 ```bash
 cd Backend
@@ -129,26 +120,20 @@ npm run test:coverage
 
 Approximate run-times:
 
-| Category | Time | Where it runs |
-| --- | ---: | --- |
-| Unit | < 1 second | local + CI |
-| Integration | ~1 second | local + CI |
+| Category    |       Time | Where it runs |
+| ----------- | ---------: | ------------- |
+| Unit        | < 1 second | local + CI    |
+| Integration |  ~1 second | local + CI    |
 
-Notes:
-- Tests use Node's built-in test runner (`node --test`).
-- Auth unit tests mock database methods where needed, so they do not require a live MongoDB Atlas connection.
-- Auth integration tests run against the Express app through HTTP on a temporary local port. They also mock model methods, so they test route behavior without touching the production database.
 
-## 2.5 Coverage Achieved
 
-Last updated: June 1, 2026 (commit pending)
+## Coverage Achieved (IN PROGRESS)
 
-| Test type | Tool | Coverage % |
-| --- | --- | ---: |
-| Unit | Node test runner with `--experimental-test-coverage` | 62.84% |
-| Integration | Node test runner with `--experimental-test-coverage` | 40.90% |
-| Combined (overall) | `npm run test:coverage` | 47.09% |
+Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
 
-Coverage gaps:
-- Current auth tests focus on signup/login/token/protected-route behavior.
-- Social features, chat behavior, map behavior, and frontend UI behavior are not covered by Harry's auth test section.
+| Test type          | Tool                                       | Coverage % |
+| ------------------ | ------------------------------------------ | ---------: |
+| Unit               | `node --test --experimental-test-coverage` |            |
+| Integration        | `node --test --experimental-test-coverage` |            |
+| Combined (overall) | `npm run test:coverage`                    |            |
+

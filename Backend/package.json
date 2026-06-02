@@ -5,14 +5,10 @@
   },
   "scripts": {
     "start": "node server.js",
-<<<<<<< HEAD
-    "test": "node --experimental-test-module-mocks --test"
-=======
-    "test": "node --test",
+    "test": "node --experimental-test-module-mocks --test",
     "test:unit": "node --test test/unit/*.test.js",
     "test:integration": "node --test test/integration/*.test.js",
     "test:coverage": "node --test --experimental-test-coverage"
->>>>>>> 16715516d22144ebbb687fbd24aed60cf82642fc
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

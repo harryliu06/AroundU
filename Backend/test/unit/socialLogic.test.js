@@ -3,9 +3,9 @@ import test from 'node:test'
 import jwt from 'jsonwebtoken'
 import mongoose from 'mongoose'
 
-import Friendship from '../database/friendship.js'
-import Message from '../database/message.js'
-import User from '../database/user.js'
+import Friendship from '../../database/friendship.js'
+import Message from '../../database/message.js'
+import User from '../../database/user.js'
 
 import {
   addFriendByToken,
@@ -15,7 +15,7 @@ import {
   listMessagesByToken,
   sendMessageByToken,
   unblockUserByToken,
-} from '../logic/socialLogic.js'
+} from '../../logic/socialLogic.js'
 
 const JWT_SECRET = 'secret_key'
 
