@@ -71,10 +71,10 @@
 | Member  | Test Categories / Components                                                    |
 | ------- | ------------------------------------------------------------------------------- |
 | Harry   | Auth unit & integration tests (signup, login, token expiry, protected routes)   |
-| Swaraag | Location logic unit tests; radius filtering integration tests                   |
-| Jacob   | Chat integration tests; message ordering and persistence                        |
+| Jacob | Location logic unit tests; radius filtering integration tests                   |
+| Dorian   | Chat integration tests; message ordering and persistence                        |
 | Dorian  | Blocking & privacy enforcement. Friending & Accepting Friends                   |
-| Tatiana | Database persistence and security                                               |
+| Jacob | Database persistence and security                                               |
 
 
 
@@ -90,7 +90,7 @@ Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
 | Unit        |     6 | `signupUser rejects missing email and password`<br>`signupUser accepts a valid email format`<br>`loginUser rejects unknown email`<br>`getUserByToken rejects missing authorization token`                        |
 | Integration |     4 | `POST /signup creates an account and returns auth data`<br>`POST /login returns a token for valid credentials`<br>`GET /me rejects missing authorization token`<br>`GET /me rejects expired authorization token` |
 
-## Blocking, privacy, friending, and accepting testing responsibility: (Dorian)
+## Blocking, privacy, friending, and accepting testing responsibility. Messages too: (Dorian)
 
 Last updated: June 1, 2026 (commit: 6913b41dfe3c9d95e433abe0b5aa6b7984ef7ccf)
 
