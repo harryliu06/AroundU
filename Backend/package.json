@@ -6,8 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "test": "node --experimental-test-module-mocks --test",
-    "test:unit": "node --test test/unit/*.test.js",
-    "test:integration": "node --test test/integration/*.test.js",
+    "test:unit": "node --experimental-test-module-mocks --test test/unit/*.test.js",
+    "test:integration": "node --experimental-test-module-mocks --test test/integration/*.test.js",
     "test:coverage": "node --test --experimental-test-module-mocks --experimental-test-coverage"
   },
   "dependencies": {
