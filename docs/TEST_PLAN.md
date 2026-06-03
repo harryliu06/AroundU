@@ -10,13 +10,12 @@
 - **Blocking & location privacy controls** – Directly counters stated stalking/harassment risks; must be airtight.
 - **Database read/write correctness** – Incorrect persistence = data loss or data leak.
 - **Form Validation (Creating Profile - Email, Password, Age)** – Invalid required fields should show a clear error message without crashing the whole application.
-- **Map/directions integration logic** – Meetup coordination depends on it; wrong directions are a usability failure.
 - **Backend API endpoints** – Backend is the source of truth for all data; broken endpoints cascade everywhere.
 
 ## Out-of-Scope
 - **Real-time Chat** – Database storage usage high and don’t have budget for high amount of messages.
 - **GPS system** – Requires API from third-party sites where we can’t acquire subscriptions.
-- **Real-time Direction** – We don’t have budget for API calls locked behind subscriptions.
+- **Real-time Map Direction** – We don’t have budget for API calls locked behind subscriptions.
 
 # 1.2 Quality Goals
 - No critical bug in the signup or login flow, such as a softlock — a user must always be able to create an account and log back in.
@@ -56,25 +55,19 @@
 
 - **Runtime:**
   - Node 18+ for the Express backend
-  - Python 3.14+ for any Python services
   - Expo Go for the mobile frontend
-- **Test database:** A separate local SQLite instance
-- **External APIs mocked:**
-  - Map/directions provider (Mapbox / Google Maps) → mocked with fixed coordinate responses
-  - Push notification service (APNs / FCM) → stubbed; we verify the call was made, not that it was delivered
-  - Email verification service → stubbed with an in-memory store
 - **Test data:** Generated programmatically at test runtime (no hardcoded shared global state). Each test that needs a user creates one; teardown deletes it.
 - **Device or Emulator required:** Frontend unit tests run in a mobile device; either iOS or Android system.
 
 # 1.6 Member Ownership of Test Categories / Components
 
-| Member  | Test Categories / Components                                                    |
-| ------- | ------------------------------------------------------------------------------- |
-| Harry   | Auth unit & integration tests (signup, login, token expiry, protected routes)   |
-| Jacob | Location logic unit tests; radius filtering integration tests                   |
-| Dorian   | Chat integration tests; message ordering and persistence                        |
-| Dorian  | Blocking & privacy enforcement. Friending & Accepting Friends                   |
-| Jacob | Database persistence and security                                               |
+| Member | Test Categories / Components                                                  |
+| ------ | ----------------------------------------------------------------------------- |
+| Harry  | Auth unit & integration tests (signup, login, token expiry, protected routes) |
+| Jacob  | Location logic unit tests; radius filtering integration tests                 |
+| Dorian | Chat integration tests; message ordering and persistence                      |
+| Dorian | Blocking & privacy enforcement. Friending & Accepting Friends                 |
+| Jacob  | Database persistence and security                                             |
 
 
 
@@ -94,19 +87,19 @@ Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
 
 Last updated: June 1, 2026 (commit: 6913b41dfe3c9d95e433abe0b5aa6b7984ef7ccf)
 
-| Category    | Count | Example                                                                                                                                                                                                          |
-| ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit        |    20  | `blockUser calls blockUserByToken and returns its result`<br>`blockUser returns 500 when blockUserByToken throws`<br>`addFriend calls addFriendByToken and returns its result`|
-| Integration |    5   | `a blocked user cannot send a friend request to the blocker`<br>`friends can send and list messages`<br>`blocking an existing friend prevents further messaging`|
+| Category    | Count | Example                                                                                                                                                                        |
+| ----------- | ----: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Unit        |    20 | `blockUser calls blockUserByToken and returns its result`<br>`blockUser returns 500 when blockUserByToken throws`<br>`addFriend calls addFriendByToken and returns its result` |
+| Integration |     5 | `a blocked user cannot send a friend request to the blocker`<br>`friends can send and list messages`<br>`blocking an existing friend prevents further messaging`               |
 
 ## Location logic unit tests; radius filtering integration tests\ Database persistence and security: (Jacob)
 
 Last updated: June _, 2026 (commit: _)
 
-| Category    | Count | Example                                                                                                                                                                                                          |
-| ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Unit        |       | `name of test`<br>`name of test`<br>`name of test`|
-| Integration |       | `name of test`<br>`name of test`<br>`name of test`|
+| Category    | Count | Example                                            |
+| ----------- | ----: | -------------------------------------------------- |
+| Unit        |       | `name of test`<br>`name of test`<br>`name of test` |
+| Integration |       | `name of test`<br>`name of test`<br>`name of test` |
 
 # 2.4
 ## Where the Tests Live + How to Run Them
@@ -147,13 +140,15 @@ Approximate run-times:
 
 
 # 2.5
-## Coverage Achieved (IN PROGRESS)
+## Coverage Achieved
 
-Last updated: June 1, 2026 (commit: 0c10138f24b3b6cb15b21f342b0fbe755296d2a6)
+Last updated: June 2, 2026 (commit: 601159c1535721c5df9fbdff0ead2e7c29b0a25e)
 
-| Test type          | Tool                                       | Coverage % |
-| ------------------ | ------------------------------------------ | ---------: |
-| Unit               | `node --test --experimental-test-coverage` |            |
-| Integration        | `node --test --experimental-test-coverage` |            |
-| Combined (overall) | `npm run test:coverage`                    |            |
+| Test type          | Tool                                | Coverage % |
+| ------------------ | ----------------------------------- | ---------: |
+| Unit               | `npm run test:coverage:unit`        |      68.02 |
+| Integration        | `npm run test:coverage:integration` |      85.40 |
+| Combined (overall) | `npm run test:coverage`             |      82.61 |
 
+
+# 2.
