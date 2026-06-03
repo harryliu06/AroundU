@@ -152,4 +152,11 @@ Last updated: June 2, 2026 (commit: 601159c1535721c5df9fbdff0ead2e7c29b0a25e)
 | Combined (overall) | `npm run test:coverage`             |      82.61 |
 
 
-# 2.
+# 2.6 
+## Plan-vs-implementation gap
+
+| What the plan called for | What we shipped | What we blocked/added |
+| ------------------ | --------------------- | --------------------- |
+| Front-end tests for messages and blocking |                     | Unable to do Front-end due to time contraints  |
+| Device emulator + Expo Go |                       |  No time for front-end                     |
+| Test-data creation           |                       | Everything was mostly mocked             |
