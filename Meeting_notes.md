@@ -100,3 +100,9 @@ Update:
 - Chat integration and messages done by Dorian. Accidentally tested by testing the whole module. Jacob will test a different module.
 - Swaraag and Tatiana's communication status: Poor.
   - Roles will be reassigned to Jacob under time constraints.
+
+### June, Tuesday 2, 2026 (Virtual)
+- Present:
+  - Harry Lwin
+  - Dorian Steve Ramirez
+- We had gathered to finish the rest of the test plan MD file with our reports and final reflections. Updating the number of tests done and adding the coverage of our tests. Our final reflection was also done, given our experiences. Of the three people who have done the testing, two are present; the other person had other matters to attend to but has done their tasks successfully.
