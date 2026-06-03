@@ -10,7 +10,8 @@
     "test:integration": "node --experimental-test-module-mocks --test test/integration/*.test.js",
     "test:coverage": "node --test --experimental-test-module-mocks --experimental-test-coverage",
     "test:coverage:unit": "node --experimental-test-module-mocks --test --experimental-test-coverage test/unit/*.test.js",
-    "test:coverage:integration": "node --experimental-test-module-mocks --test --experimental-test-coverage test/integration/*.test.js"
+    "test:coverage:integration": "node --experimental-test-module-mocks --test --experimental-test-coverage test/integration/*.test.js",
+    "test:coverage:html": "c8 --reporter=html --reporter=text node --experimental-test-module-mocks --test"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
