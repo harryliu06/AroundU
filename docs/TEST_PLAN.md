@@ -157,9 +157,7 @@ Last updated: June 2, 2026 (commit: 601159c1535721c5df9fbdff0ead2e7c29b0a25e)
 
 | What the plan called for | What we shipped | What we blocked/added |
 | ------------------ | --------------------- | --------------------- |
-| Front-end tests for messages and blocking |                     | Unable to do Front-end due to time contraints  |
-| Device emulator + Expo Go |                       |  No time for front-end                     |
-| Test-data creation           |                       | Everything was mostly mocked             |
+| Test-data creation  | Mocked tests         | Everything was mostly mocked due to actual database complexity|
 
 
 # Part 3
