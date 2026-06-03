@@ -4,7 +4,7 @@ AroundU is a social geo‑finder app that helps people discover others nearby, c
 
 ## Team Members
 - Dorian Steve Ramirez - (doriansr)
-- Harry Lwin - hlwin1)
+- Harry Lwin - (hlwin1)
 - Jacob Ryan Almaria - (jalmaria)
 - Swaraag Sistla - (swaraags)
 - Tatiana Anahi Gutierrez - (tagutie2)
