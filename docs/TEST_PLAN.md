@@ -94,12 +94,13 @@ Last updated: June 1, 2026 (commit: 6913b41dfe3c9d95e433abe0b5aa6b7984ef7ccf)
 
 ## Location logic unit tests; radius filtering integration tests\ Database persistence and security: (Jacob)
 
-Last updated: June _, 2026 (commit: _)
+Last updated: June 2, 2026 (commit: 633638d59ffcb8b9ec7e3494efac2c9e783d1eee)
 
-| Category    | Count | Example                                            |
-| ----------- | ----: | -------------------------------------------------- |
-| Unit        |       | `name of test`<br>`name of test`<br>`name of test` |
-| Integration |       | `name of test`<br>`name of test`<br>`name of test` |
+| Category    | Count | Example                                                                                                                                                                                                          |
+| ----------- | ----: | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Unit        |     20  | `unauthenticated request to nearby-users returns 200 with an empty filtered list`<br>`users with a blocked friendship status are excluded from nearby results`<br>`sendMessageByToken rejects an empty message text with 400`|
+| Integration |     9   | `a user cannot accept a friend request that was addressed to a different use`<br>`users with no overlapping interests are excluded while those with at least one are included`<br>`nearby users carry the correct friendStatus reflecting the existing relationship`|
+
 
 # 2.4
 ## Where the Tests Live + How to Run Them
