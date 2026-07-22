@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   Image,
+  Platform,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -12,7 +13,13 @@ import { StatusBar } from 'expo-status-bar'
 import * as Location from 'expo-location'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
+import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import { apiJson } from '../utils/api'
+
+type Coordinate = {
+  latitude: number
+  longitude: number
+}
 
 type NearbyUser = {
   id: string
@@ -20,17 +27,25 @@ type NearbyUser = {
   tags: string[]
   allTags: string[]
   distance: number
+  location?: Coordinate
   image?: string
   bio: string
   friendStatus: 'none' | 'pending' | 'accepted'
 }
 
-const MAP_PINS = [
-  { id: 1, top: 34, left: 50, color: '#36A7F8' },
-  { id: 2, top: 72, left: 142, color: '#ef4444' },
-  { id: 3, top: 42, left: 232, color: '#36A7F8' },
-  { id: 4, top: 112, left: 268, color: '#ef4444' },
-  { id: 5, top: 116, left: 106, color: '#36A7F8' },
+const DEFAULT_REGION = {
+  latitude: 33.6405,
+  longitude: -117.8443,
+  latitudeDelta: 0.025,
+  longitudeDelta: 0.025,
+}
+
+const DEMO_MARKER_OFFSETS = [
+  { latitude: 0.0032, longitude: -0.004 },
+  { latitude: -0.0024, longitude: 0.0037 },
+  { latitude: 0.0018, longitude: 0.0044 },
+  { latitude: -0.0036, longitude: -0.0028 },
+  { latitude: 0.004, longitude: 0.0015 },
 ]
 
 function formatTags(tags: string[]) {
@@ -49,6 +64,34 @@ function getInitials(name: string) {
   )
 }
 
+function isValidCoordinate(location?: Coordinate): location is Coordinate {
+  if (!location) {
+    return false
+  }
+
+  return (
+    Number.isFinite(location.latitude) &&
+    Number.isFinite(location.longitude) &&
+    location.latitude >= -90 &&
+    location.latitude <= 90 &&
+    location.longitude >= -180 &&
+    location.longitude <= 180
+  )
+}
+
+function getMarkerCoordinate(user: NearbyUser, index: number, origin: Coordinate): Coordinate {
+  if (isValidCoordinate(user.location)) {
+    return user.location
+  }
+
+  const offset = DEMO_MARKER_OFFSETS[index % DEMO_MARKER_OFFSETS.length] ?? DEMO_MARKER_OFFSETS[0]
+
+  return {
+    latitude: origin.latitude + offset.latitude,
+    longitude: origin.longitude + offset.longitude,
+  }
+}
+
 export default function Home() {
   const currentUser = useLocalSearchParams<{
     userId?: string
@@ -61,6 +104,7 @@ export default function Home() {
   const [nearbyUsers, setNearbyUsers] = useState<NearbyUser[]>([])
   const [nearbyMessage, setNearbyMessage] = useState('Loading nearby users...')
   const [locationMessage, setLocationMessage] = useState('Checking location access...')
+  const [userLocation, setUserLocation] = useState<Coordinate | null>(null)
 
   useEffect(() => {
     const updateCurrentLocation = async () => {
@@ -79,6 +123,12 @@ export default function Home() {
       const currentLocation = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Balanced,
       })
+      const coordinates = {
+        latitude: currentLocation.coords.latitude,
+        longitude: currentLocation.coords.longitude,
+      }
+
+      setUserLocation(coordinates)
 
       const { response, data } = await apiJson('/me/location', {
         method: 'PATCH',
@@ -87,8 +137,8 @@ export default function Home() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          latitude: currentLocation.coords.latitude,
-          longitude: currentLocation.coords.longitude,
+          latitude: coordinates.latitude,
+          longitude: coordinates.longitude,
         }),
       })
 
@@ -133,6 +183,12 @@ export default function Home() {
               tags: sharedInterests.length ? sharedInterests : profileInterests,
               allTags: profileInterests,
               distance: Number(user.distance ?? 0),
+              location: isValidCoordinate(user.location)
+                ? {
+                    latitude: Number(user.location.latitude),
+                    longitude: Number(user.location.longitude),
+                  }
+                : undefined,
               image: user.profile?.profileImage || undefined,
               bio:
                 user.profile?.bio ||
@@ -153,6 +209,11 @@ export default function Home() {
 
     void loadNearbyUsers()
   }, [currentUser.token])
+
+  const mapCenter = userLocation ?? {
+    latitude: DEFAULT_REGION.latitude,
+    longitude: DEFAULT_REGION.longitude,
+  }
 
   const openCurrentUserProfile = () => {
     router.push({
@@ -229,35 +290,59 @@ export default function Home() {
         </View>
 
         <View style={styles.mapPanel}>
-          <View style={[styles.road, styles.roadOne]} />
-          <View style={[styles.road, styles.roadTwo]} />
-          <View style={[styles.road, styles.roadThree]} />
-          <View style={styles.park}>
-            <Text style={styles.parkText}>Aldrich Park</Text>
-          </View>
-          <Text style={styles.mapLabel}>University of California, Irvine</Text>
+          <MapView
+            style={styles.map}
+            provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+            initialRegion={DEFAULT_REGION}
+            region={{
+              latitude: mapCenter.latitude,
+              longitude: mapCenter.longitude,
+              latitudeDelta: 0.002,
+              longitudeDelta: 0.002,
+            }}
+            showsUserLocation={Boolean(userLocation)}
+            showsMyLocationButton={false}
+            toolbarEnabled={false}
+          >
+            {userLocation ? (
+              <>
+                <Circle
+                  center={userLocation}
+                  radius={200}
+                  strokeColor="rgba(54, 167, 248, 0.28)"
+                  fillColor="rgba(54, 167, 248, 0.08)"
+                />
+                <Marker coordinate={userLocation} title="You">
+                  <View style={[styles.mapMarker, styles.currentUserMarker]}>
+                    <FontAwesome name="user" size={12} color="#ffffff" />
+                  </View>
+                </Marker>
+              </>
+            ) : null}
 
-          {MAP_PINS.map((pin) => (
-            <View
-              key={pin.id}
-              style={[
-                styles.pin,
-                {
-                  top: pin.top,
-                  left: pin.left,
-                  backgroundColor: pin.color,
-                },
-              ]}
-            >
-              <FontAwesome name="map-marker" size={15} color="#ffffff" />
-            </View>
-          ))}
+            {nearbyUsers.map((user, index) => (
+              <Marker
+                key={user.id}
+                coordinate={getMarkerCoordinate(user, index, mapCenter)}
+                title={user.name}
+                description={formatTags(user.tags)}
+              >
+                <View style={styles.mapMarker}>
+                  <Text style={styles.mapMarkerText}>{getInitials(user.name)}</Text>
+                </View>
+              </Marker>
+            ))}
+          </MapView>
 
           <View style={styles.mapToolbar}>
-            <Pressable style={styles.mapIconButton}>
+            <Pressable
+              style={({ pressed }) => [styles.mapIconButton, pressed && styles.buttonInactive]}
+            >
               <FontAwesome name="location-arrow" size={14} color="#111111" />
             </Pressable>
-            <Pressable style={styles.mapIconButton}>
+            <Pressable
+              style={({ pressed }) => [styles.mapIconButton, pressed && styles.buttonInactive]}
+            >
               <FontAwesome name="sliders" size={14} color="#111111" />
             </Pressable>
           </View>
@@ -421,67 +506,32 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
     marginBottom: 24,
   },
-  road: {
-    position: 'absolute',
-    height: 12,
-    borderRadius: 999,
-    backgroundColor: '#ffffff',
-    borderWidth: 1,
-    borderColor: '#d5dde2',
+  map: {
+    ...StyleSheet.absoluteFillObject,
   },
-  roadOne: {
-    top: 45,
-    left: -28,
-    width: 210,
-    transform: [{ rotate: '-24deg' }],
-  },
-  roadTwo: {
-    top: 91,
-    right: -36,
-    width: 260,
-    transform: [{ rotate: '18deg' }],
-  },
-  roadThree: {
-    bottom: 28,
-    left: 20,
-    width: 250,
-    transform: [{ rotate: '-8deg' }],
-  },
-  park: {
-    position: 'absolute',
-    top: 44,
-    left: 132,
-    width: 76,
-    height: 76,
-    borderRadius: 38,
-    backgroundColor: '#d8f3dc',
-    borderWidth: 1,
-    borderColor: '#b7e4c7',
+  mapMarker: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    backgroundColor: '#36A7F8',
+    borderWidth: 2,
+    borderColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
+    shadowColor: '#111111',
+    shadowOpacity: 0.18,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
-  parkText: {
-    color: '#5f7f67',
+  currentUserMarker: {
+    backgroundColor: '#ef4444',
+  },
+  mapMarkerText: {
+    color: '#ffffff',
     fontSize: 10,
-    textAlign: 'center',
-  },
-  mapLabel: {
-    position: 'absolute',
-    bottom: 34,
-    left: 138,
-    width: 118,
-    color: '#555555',
-    fontSize: 11,
-    lineHeight: 14,
-    textAlign: 'center',
-  },
-  pin: {
-    position: 'absolute',
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
+    lineHeight: 13,
+    fontWeight: '700',
   },
   mapToolbar: {
     position: 'absolute',
