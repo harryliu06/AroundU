@@ -14,6 +14,11 @@ export type StoredUser = {
     interests?: string[]
     profileImage?: string
   }
+  location?: {
+    latitude?: number
+    longitude?: number
+    updatedAt?: string
+  }
 }
 
 export async function saveAuthSession(token: string, user: StoredUser) {

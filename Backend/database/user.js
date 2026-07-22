@@ -12,6 +12,11 @@ const userSchema = new mongoose.Schema(
       interests: { type: [String], default: [] },
       profileImage: { type: String, default: '' },
     },
+    location: {
+      latitude: { type: Number, default: null },
+      longitude: { type: Number, default: null },
+      updatedAt: { type: Date, default: null },
+    },
   },
   { timestamps: true }
 )

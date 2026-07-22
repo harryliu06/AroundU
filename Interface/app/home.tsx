@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
+import * as Location from 'expo-location'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
 import { apiJson } from '../utils/api'
@@ -59,10 +60,50 @@ export default function Home() {
   }>()
   const [nearbyUsers, setNearbyUsers] = useState<NearbyUser[]>([])
   const [nearbyMessage, setNearbyMessage] = useState('Loading nearby users...')
+  const [locationMessage, setLocationMessage] = useState('Checking location access...')
 
   useEffect(() => {
+    const updateCurrentLocation = async () => {
+      if (!currentUser.token) {
+        setLocationMessage('Sign in to update your location.')
+        return
+      }
+
+      const permission = await Location.requestForegroundPermissionsAsync()
+
+      if (permission.status !== 'granted') {
+        setLocationMessage('Location access is needed to find nearby people.')
+        return
+      }
+
+      const currentLocation = await Location.getCurrentPositionAsync({
+        accuracy: Location.Accuracy.Balanced,
+      })
+
+      const { response, data } = await apiJson('/me/location', {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${currentUser.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          latitude: currentLocation.coords.latitude,
+          longitude: currentLocation.coords.longitude,
+        }),
+      })
+
+      if (!response.ok) {
+        setLocationMessage(data.message || 'Could not update your location.')
+        return
+      }
+
+      setLocationMessage('Location updated.')
+    }
+
     const loadNearbyUsers = async () => {
       try {
+        await updateCurrentLocation()
+
         const { response, data } = await apiJson('/nearby-users', {
           headers: currentUser.token
             ? {
@@ -106,6 +147,7 @@ export default function Home() {
         setNearbyMessage(users.length ? '' : 'No nearby users share your interests yet.')
       } catch {
         setNearbyMessage('Network error loading nearby users.')
+        setLocationMessage('Could not update location.')
       }
     }
 
@@ -183,6 +225,7 @@ export default function Home() {
         <View style={styles.header}>
           <Text style={styles.title}>Nearby People</Text>
           <Text style={styles.subtitle}>Discover people around you with shared interests</Text>
+          <Text style={styles.locationStatus}>{locationMessage}</Text>
         </View>
 
         <View style={styles.mapPanel}>
@@ -357,6 +400,13 @@ const styles = StyleSheet.create({
     fontSize: 16,
     lineHeight: 20,
     color: '#111111',
+    textAlign: 'center',
+  },
+  locationStatus: {
+    marginTop: 8,
+    color: '#6b7280',
+    fontSize: 13,
+    lineHeight: 18,
     textAlign: 'center',
   },
   mapPanel: {

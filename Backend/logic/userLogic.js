@@ -31,6 +31,7 @@ function getPublicUser(user) {
     id: user.id,
     email: user.email,
     profile: user.profile,
+    location: user.location,
   }
 }
 
@@ -208,6 +209,57 @@ export async function updateUserProfileByToken(authorizationHeader, profile) {
       status: 200,
       body: {
         message: 'Profile updated successfully',
+        user: getPublicUser(user),
+      },
+    }
+  } catch {
+    return { status: 401, body: { message: 'Invalid or expired token.' } }
+  }
+}
+
+export async function updateUserLocationByToken(authorizationHeader, location) {
+  const token = String(authorizationHeader || '').replace(/^Bearer\s+/i, '').trim()
+
+  if (!token) {
+    return { status: 401, body: { message: 'Authorization token is required.' } }
+  }
+
+  const latitude = Number(location?.latitude)
+  const longitude = Number(location?.longitude)
+
+  if (
+    !Number.isFinite(latitude) ||
+    !Number.isFinite(longitude) ||
+    latitude < -90 ||
+    latitude > 90 ||
+    longitude < -180 ||
+    longitude > 180
+  ) {
+    return { status: 400, body: { message: 'Valid latitude and longitude are required.' } }
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET)
+    const user = await User.findByIdAndUpdate(
+      payload.id,
+      {
+        location: {
+          latitude,
+          longitude,
+          updatedAt: new Date(),
+        },
+      },
+      { new: true, runValidators: true }
+    )
+
+    if (!user) {
+      return { status: 404, body: { message: 'User not found.' } }
+    }
+
+    return {
+      status: 200,
+      body: {
+        message: 'Location updated successfully',
         user: getPublicUser(user),
       },
     }

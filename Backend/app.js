@@ -8,6 +8,7 @@ import {
   signup,
   nearbyUsers,
   updateCurrentUser,
+  updateCurrentUserLocation,
 } from './controllers/userController.js'
 import {
   acceptFriendRequest,
@@ -34,6 +35,7 @@ app.post('/signup', signup)
 app.post('/login', login)
 app.get('/me', getCurrentUser)
 app.patch('/me', updateCurrentUser)
+app.patch('/me/location', updateCurrentUserLocation)
 app.get('/users/:id', getUser)
 app.get('/nearby-users', nearbyUsers)
 app.get('/friends', listFriends)

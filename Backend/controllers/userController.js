@@ -4,6 +4,7 @@ import {
   listNearbyUsersByToken,
   loginUser,
   signupUser,
+  updateUserLocationByToken,
   updateUserProfileByToken,
 } from '../logic/userLogic.js'
 
@@ -59,6 +60,17 @@ export async function updateCurrentUser(req, res) {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error while updating profile.' })
+  }
+}
+
+export async function updateCurrentUserLocation(req, res) {
+  try {
+    const result = await updateUserLocationByToken(req.headers.authorization, req.body)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while updating location.' })
   }
 }
 
