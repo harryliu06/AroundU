@@ -48,6 +48,7 @@ export default function LocationSettings() {
       const savedRadius = await saveDiscoveryRadiusMiles(radius)
       setRadius(savedRadius)
       setMessage('Location radius saved.')
+      router.push('/')
     } catch {
       setMessage('Could not save location radius.')
     } finally {
