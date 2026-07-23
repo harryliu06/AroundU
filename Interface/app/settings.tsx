@@ -1,4 +1,5 @@
 import {
+  Image,
   Pressable,
   SafeAreaView,
   ScrollView,
@@ -44,9 +45,26 @@ export default function Settings() {
     fullName?: string
     bio?: string
     interests?: string
+    profileImage?: string
   }>()
 
   const fullName = params.fullName || 'AroundU User'
+  const rawProfileImage = params.profileImage?.trim()
+  const profileImage =
+    rawProfileImage &&
+    rawProfileImage !== 'undefined' &&
+    rawProfileImage !== 'null' &&
+    /^(https?:|file:|data:)/.test(rawProfileImage)
+      ? rawProfileImage
+      : null
+  const initials =
+    fullName
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((part) => part[0])
+      .join('')
+      .toUpperCase() || 'AU'
 
   const handleLogout = async () => {
     await clearAuthSession()
@@ -63,6 +81,14 @@ export default function Settings() {
 
   const openBlockedUsers = () => {
     router.push('/blockedUsers')
+  }
+
+  const openLocationSettings = () => {
+    router.push('/location')
+  }
+
+  const openPrivacy = () => {
+    router.push('/privacy')
   }
 
   return (
@@ -84,7 +110,11 @@ export default function Settings() {
 
         <View style={styles.profilePanel}>
           <View style={styles.avatar}>
-            <FontAwesome name="user" size={22} color="#36A7F8" />
+            {profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.avatarImage} />
+            ) : (
+              <Text style={styles.avatarInitials}>{initials}</Text>
+            )}
           </View>
           <View style={styles.profileText}>
             <Text style={styles.profileName}>{fullName}</Text>
@@ -107,14 +137,18 @@ export default function Settings() {
               value="Friend requests and alerts"
               onPress={openNotifications}
             />
-            <SettingRow icon="map-marker" title="Location" value="Nearby discovery settings" />
+            <SettingRow icon="map-marker"
+              title="Location"
+              value="Nearby discovery settings"
+              onPress={openLocationSettings}
+            />
           </View>
         </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.panel}>
-            <SettingRow icon="shield" title="Privacy" value="Control who can find you" />
+            <SettingRow icon="shield" title="Privacy" value="Control who can find you" onPress={openPrivacy} />
             <SettingRow
               icon="ban"
               title="Blocked Users"
@@ -200,6 +234,17 @@ const styles = StyleSheet.create({
     borderColor: '#bae6fd',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+  },
+  avatarInitials: {
+    color: '#36A7F8',
+    fontSize: 14,
+    lineHeight: 18,
+    fontWeight: '700',
   },
   profileText: {
     flex: 1,
