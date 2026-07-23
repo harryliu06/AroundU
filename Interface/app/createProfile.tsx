@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import {
+  ActivityIndicator,
+  Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -11,8 +13,11 @@ import {
   View,
 } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
+import * as ImagePicker from 'expo-image-picker'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { uploadImageToCloudinary } from '../utils/cloudinary'
 
 type ProfileForm = {
   fullName: string
@@ -21,6 +26,7 @@ type ProfileForm = {
   bio: string
 }
 
+const TEMP_PROFILE_IMAGE_KEY = 'aroundu.pendingProfileImage'
 
 function validate(form: ProfileForm, selectedInterests: string[]): string | null {
   if (!form.fullName.trim() || !form.age.trim()) {
@@ -49,6 +55,8 @@ export default function CreateProfile() {
   })
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [interestInput, setInterestInput] = useState('')
+  const [profileImage, setProfileImage] = useState('')
+  const [isUploadingImage, setIsUploadingImage] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
 
   const canSubmit = useMemo(() => {
@@ -95,12 +103,56 @@ export default function CreateProfile() {
     if (message) setMessage(null)
   }
 
-  const handleSubmit = () => {
+  const pickProfileImage = async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    if (permission.status !== 'granted') {
+      setMessage('Photo access is needed to choose a profile picture.')
+      return
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.6,
+    })
+
+    if (result.canceled || !result.assets[0]) {
+      return
+    }
+
+    setIsUploadingImage(true)
+    setMessage('Uploading profile picture...')
+
+    try {
+      const imageUrl = await uploadImageToCloudinary({
+        uri: result.assets[0].uri,
+        mimeType: result.assets[0].mimeType,
+        fileName: result.assets[0].fileName || undefined,
+      })
+
+      setProfileImage(imageUrl)
+      setMessage(null)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Could not upload profile picture.')
+    } finally {
+      setIsUploadingImage(false)
+    }
+  }
+
+  const handleSubmit = async () => {
     const validationError = validate(form, selectedInterests)
 
     if (validationError) {
       setMessage(validationError)
       return
+    }
+
+    if (profileImage) {
+      await AsyncStorage.setItem(TEMP_PROFILE_IMAGE_KEY, profileImage)
+    } else {
+      await AsyncStorage.removeItem(TEMP_PROFILE_IMAGE_KEY)
     }
 
     router.push({
@@ -134,9 +186,18 @@ export default function CreateProfile() {
 
           <Pressable
             style={({ pressed }) => [styles.avatarButton, pressed && styles.buttonInactive]}
-            onPress={() => setMessage('Profile photo upload is not wired yet.')}
+            disabled={isUploadingImage}
+            onPress={() => {
+              void pickProfileImage()
+            }}
           >
-            <FontAwesome name="user" size={38} color="#36A7F8" />
+            {isUploadingImage ? (
+              <ActivityIndicator color="#36A7F8" />
+            ) : profileImage ? (
+              <Image source={{ uri: profileImage }} style={styles.avatarImage} />
+            ) : (
+              <FontAwesome name="user" size={38} color="#36A7F8" />
+            )}
             <View style={styles.cameraBadge}>
               <FontAwesome name="camera" size={12} color="#ffffff" />
             </View>
@@ -234,7 +295,9 @@ export default function CreateProfile() {
                 (!canSubmit || pressed) && styles.buttonInactive,
               ]}
               disabled={!canSubmit}
-              onPress={handleSubmit}
+              onPress={() => {
+                void handleSubmit()
+              }}
             >
               <Text style={styles.primaryButtonText}>Continue</Text>
             </Pressable>
@@ -297,6 +360,11 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 10,
     marginBottom: 24,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
   },
   cameraBadge: {
     position: 'absolute',

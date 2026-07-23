@@ -13,6 +13,7 @@ import {
 } from 'react-native'
 import { StatusBar } from 'expo-status-bar'
 import { router, useLocalSearchParams } from 'expo-router'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getHomeParams, saveAuthSession } from '../utils/authStorage'
 import { apiJson } from '../utils/api'
 
@@ -23,6 +24,7 @@ type AccountForm = {
 }
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+const TEMP_PROFILE_IMAGE_KEY = 'aroundu.pendingProfileImage'
 
 function validate(form: AccountForm): string | null {
   if (!form.email.trim() || !form.password.trim() || !form.confirmPassword.trim()) {
@@ -101,6 +103,7 @@ export default function CreateAccount() {
     setIsSubmitting(true)
 
     try {
+      const profileImage = await AsyncStorage.getItem(TEMP_PROFILE_IMAGE_KEY)
       const { response, data } = await apiJson('/signup', {
         method: 'POST',
         headers: {
@@ -115,6 +118,7 @@ export default function CreateAccount() {
             schoolOrWork: profileParams.schoolOrWork,
             bio: profileParams.bio,
             interests: profileInterests,
+            profileImage: profileImage || '',
           },
         }),
       })
@@ -125,6 +129,7 @@ export default function CreateAccount() {
       }
 
       await saveAuthSession(data.token, data.user)
+      await AsyncStorage.removeItem(TEMP_PROFILE_IMAGE_KEY)
 
       router.replace({
         pathname: '/home',
