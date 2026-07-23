@@ -15,6 +15,10 @@ import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router, useLocalSearchParams } from 'expo-router'
 import MapView, { Circle, Marker, PROVIDER_GOOGLE } from 'react-native-maps'
 import { apiJson } from '../utils/api'
+import {
+  DEFAULT_DISCOVERY_RADIUS_MILES,
+  getDiscoveryRadiusMiles,
+} from '../utils/locationPreferences'
 
 type Coordinate = {
   latitude: number
@@ -105,6 +109,7 @@ export default function Home() {
   const [nearbyMessage, setNearbyMessage] = useState('Loading nearby users...')
   const [locationMessage, setLocationMessage] = useState('Checking location access...')
   const [userLocation, setUserLocation] = useState<Coordinate | null>(null)
+  const [discoveryRadiusMiles, setDiscoveryRadiusMiles] = useState(DEFAULT_DISCOVERY_RADIUS_MILES)
 
   useEffect(() => {
     const updateCurrentLocation = async () => {
@@ -152,6 +157,8 @@ export default function Home() {
 
     const loadNearbyUsers = async () => {
       try {
+        const savedRadius = await getDiscoveryRadiusMiles()
+        setDiscoveryRadiusMiles(savedRadius)
         await updateCurrentLocation()
 
         const { response, data } = await apiJson('/nearby-users', {
@@ -308,7 +315,7 @@ export default function Home() {
               <>
                 <Circle
                   center={userLocation}
-                  radius={200}
+                  radius={discoveryRadiusMiles * 1609.34}
                   strokeColor="rgba(54, 167, 248, 0.28)"
                   fillColor="rgba(54, 167, 248, 0.08)"
                 />
