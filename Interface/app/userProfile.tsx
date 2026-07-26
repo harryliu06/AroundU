@@ -14,12 +14,6 @@ import { router, useLocalSearchParams } from 'expo-router'
 const COVER_IMAGE =
   'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=1200&q=80'
 
-const GALLERY_IMAGES = [
-  'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=400&q=80',
-  'https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=400&q=80',
-  'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=400&q=80',
-]
-
 export default function UserProfile() {
   const params = useLocalSearchParams<{
     fullName?: string
@@ -102,13 +96,6 @@ export default function UserProfile() {
                 </View>
               ))}
             </View>
-          </View>
-
-          <Text style={styles.sectionTitle}>Photos</Text>
-          <View style={styles.galleryRow}>
-            {GALLERY_IMAGES.map((image) => (
-              <Image key={image} source={{ uri: image }} style={styles.galleryImage} />
-            ))}
           </View>
         </View>
       </ScrollView>
