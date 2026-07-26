@@ -87,6 +87,10 @@ export default function Settings() {
     router.push('/location')
   }
 
+  const openSupport = () => {
+    router.push('https://github.com/harryliu06/AroundU/blob/main/README.md')
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -150,7 +154,7 @@ export default function Settings() {
               value="Manage blocked profiles"
               onPress={openBlockedUsers}
             />
-            <SettingRow icon="question-circle-o" title="Help" value="Support and app info" />
+            <SettingRow icon="question-circle-o" title="Help" value="Support and app info" onPress={openSupport} />
           </View>
         </View>
 
