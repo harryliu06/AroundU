@@ -87,10 +87,6 @@ export default function Settings() {
     router.push('/location')
   }
 
-  const openPrivacy = () => {
-    router.push('/privacy')
-  }
-
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar style="dark" />
@@ -148,7 +144,6 @@ export default function Settings() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Preferences</Text>
           <View style={styles.panel}>
-            <SettingRow icon="shield" title="Privacy" value="Control who can find you" onPress={openPrivacy} />
             <SettingRow
               icon="ban"
               title="Blocked Users"
