@@ -163,40 +163,6 @@ export default function Login() {
               )}
             </Pressable>
 
-            <View style={styles.dividerRow}>
-              <View style={styles.dividerLine} />
-              <Text style={styles.dividerText}>or</Text>
-              <View style={styles.dividerLine} />
-            </View>
-
-            <Pressable
-              style={({ pressed }) => [styles.socialButton, pressed && styles.buttonInactive]}
-              disabled={isSubmitting}
-              onPress={() => setStatusMessage('Google sign-in is not wired yet.')}
-            >
-              <FontAwesome
-                name="google"
-                size={18}
-                color="#ffffff"
-                style={styles.socialIconSpacing}
-              />
-              <Text style={styles.socialButtonText}>Continue with Google</Text>
-            </Pressable>
-
-            <Pressable
-              style={({ pressed }) => [styles.socialButton, pressed && styles.buttonInactive]}
-              disabled={isSubmitting}
-              onPress={() => setStatusMessage('Apple sign-in is not wired yet.')}
-            >
-              <FontAwesome
-                name="apple"
-                size={20}
-                color="#ffffff"
-                style={styles.socialIconSpacing}
-              />
-              <Text style={styles.socialButtonText}>Continue with Apple</Text>
-            </Pressable>
-
             <Pressable
               style={styles.forgotButton}
               onPress={() => setStatusMessage('Password reset flow not implemented.') }
