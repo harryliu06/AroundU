@@ -341,18 +341,6 @@ export default function Home() {
             ))}
           </MapView>
 
-          <View style={styles.mapToolbar}>
-            <Pressable
-              style={({ pressed }) => [styles.mapIconButton, pressed && styles.buttonInactive]}
-            >
-              <FontAwesome name="location-arrow" size={14} color="#111111" />
-            </Pressable>
-            <Pressable
-              style={({ pressed }) => [styles.mapIconButton, pressed && styles.buttonInactive]}
-            >
-              <FontAwesome name="sliders" size={14} color="#111111" />
-            </Pressable>
-          </View>
         </View>
 
         <View style={styles.sectionHeader}>
