@@ -45,6 +45,34 @@ function normalizeFriendPair(firstUserId, secondUserId) {
   return [String(firstUserId), String(secondUserId)].sort()
 }
 
+function getCloudinaryConfig() {
+  const cloudinaryUrl = String(process.env.CLOUDINARY_URL || '').trim()
+
+  if (cloudinaryUrl) {
+    try {
+      const parsedUrl = new URL(cloudinaryUrl)
+
+      return {
+        cloudName: parsedUrl.hostname,
+        apiKey: decodeURIComponent(parsedUrl.username),
+        apiSecret: decodeURIComponent(parsedUrl.password),
+      }
+    } catch {
+      return {
+        cloudName: '',
+        apiKey: '',
+        apiSecret: '',
+      }
+    }
+  }
+
+  return {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  }
+}
+
 function getConversationKey(firstUserId, secondUserId) {
   return normalizeFriendPair(firstUserId, secondUserId).join(':')
 }
@@ -424,12 +452,20 @@ export async function reqSignature(authorizationHeader) {
 
   if (auth.error) return auth.error
 
-  const cloudName = process.env.CLOUDINARY_CLOUD_NAME
-  const apiKey = process.env.CLOUDINARY_API_KEY
-  const apiSecret = process.env.CLOUDINARY_API_SECRET
+  const { cloudName, apiKey, apiSecret } = getCloudinaryConfig()
 
   if (!cloudName || !apiKey || !apiSecret) {
-    return { status: 500, body: { message: 'Cloudinary configuration is missing.' } }
+    return {
+      status: 500,
+      body: {
+        message: 'Cloudinary configuration is missing.',
+        missing: {
+          cloudName: !cloudName,
+          apiKey: !apiKey,
+          apiSecret: !apiSecret,
+        },
+      },
+    }
   }
 
   const timestamp = Math.round(Date.now() / 1000)
