@@ -145,11 +145,17 @@ export default function EditProfile() {
       return
     }
 
+    if (!token) {
+      setMessage('Please log in again.')
+      return
+    }
+
     setIsUploadingImage(true)
     setMessage('Uploading profile picture...')
 
     try {
       const imageUrl = await uploadImageToCloudinary({
+        token,
         uri: result.assets[0].uri,
         mimeType: result.assets[0].mimeType,
         fileName: result.assets[0].fileName || undefined,

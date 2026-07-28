@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import {
-  ActivityIndicator,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -17,7 +16,6 @@ import * as ImagePicker from 'expo-image-picker'
 import FontAwesome from '@expo/vector-icons/FontAwesome'
 import { router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { uploadImageToCloudinary } from '../utils/cloudinary'
 
 type ProfileForm = {
   fullName: string
@@ -27,6 +25,12 @@ type ProfileForm = {
 }
 
 const TEMP_PROFILE_IMAGE_KEY = 'aroundu.pendingProfileImage'
+
+type PendingProfileImage = {
+  uri: string
+  mimeType?: string
+  fileName?: string
+}
 
 function validate(form: ProfileForm, selectedInterests: string[]): string | null {
   if (!form.fullName.trim() || !form.age.trim()) {
@@ -55,8 +59,7 @@ export default function CreateProfile() {
   })
   const [selectedInterests, setSelectedInterests] = useState<string[]>([])
   const [interestInput, setInterestInput] = useState('')
-  const [profileImage, setProfileImage] = useState('')
-  const [isUploadingImage, setIsUploadingImage] = useState(false)
+  const [profileImage, setProfileImage] = useState<PendingProfileImage | null>(null)
   const [message, setMessage] = useState<string | null>(null)
 
   const canSubmit = useMemo(() => {
@@ -122,23 +125,12 @@ export default function CreateProfile() {
       return
     }
 
-    setIsUploadingImage(true)
-    setMessage('Uploading profile picture...')
-
-    try {
-      const imageUrl = await uploadImageToCloudinary({
-        uri: result.assets[0].uri,
-        mimeType: result.assets[0].mimeType,
-        fileName: result.assets[0].fileName || undefined,
-      })
-
-      setProfileImage(imageUrl)
-      setMessage(null)
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Could not upload profile picture.')
-    } finally {
-      setIsUploadingImage(false)
-    }
+    setProfileImage({
+      uri: result.assets[0].uri,
+      mimeType: result.assets[0].mimeType,
+      fileName: result.assets[0].fileName || undefined,
+    })
+    setMessage(null)
   }
 
   const handleSubmit = async () => {
@@ -150,7 +142,7 @@ export default function CreateProfile() {
     }
 
     if (profileImage) {
-      await AsyncStorage.setItem(TEMP_PROFILE_IMAGE_KEY, profileImage)
+      await AsyncStorage.setItem(TEMP_PROFILE_IMAGE_KEY, JSON.stringify(profileImage))
     } else {
       await AsyncStorage.removeItem(TEMP_PROFILE_IMAGE_KEY)
     }
@@ -186,15 +178,12 @@ export default function CreateProfile() {
 
           <Pressable
             style={({ pressed }) => [styles.avatarButton, pressed && styles.buttonInactive]}
-            disabled={isUploadingImage}
             onPress={() => {
               void pickProfileImage()
             }}
           >
-            {isUploadingImage ? (
-              <ActivityIndicator color="#36A7F8" />
-            ) : profileImage ? (
-              <Image source={{ uri: profileImage }} style={styles.avatarImage} />
+            {profileImage ? (
+              <Image source={{ uri: profileImage.uri }} style={styles.avatarImage} />
             ) : (
               <FontAwesome name="user" size={38} color="#36A7F8" />
             )}

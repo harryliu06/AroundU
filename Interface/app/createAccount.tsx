@@ -16,6 +16,7 @@ import { router, useLocalSearchParams } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { getHomeParams, saveAuthSession } from '../utils/authStorage'
 import { apiJson } from '../utils/api'
+import { uploadImageToCloudinary } from '../utils/cloudinary'
 
 type AccountForm = {
   email: string
@@ -25,6 +26,12 @@ type AccountForm = {
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const TEMP_PROFILE_IMAGE_KEY = 'aroundu.pendingProfileImage'
+
+type PendingProfileImage = {
+  uri: string
+  mimeType?: string
+  fileName?: string
+}
 
 function validate(form: AccountForm): string | null {
   if (!form.email.trim() || !form.password.trim() || !form.confirmPassword.trim()) {
@@ -85,6 +92,23 @@ export default function CreateAccount() {
     }
   }
 
+  const getPendingProfileImage = async () => {
+    const storedImage = await AsyncStorage.getItem(TEMP_PROFILE_IMAGE_KEY)
+
+    if (!storedImage) {
+      return null
+    }
+
+    try {
+      const parsed = JSON.parse(storedImage) as PendingProfileImage
+
+      return parsed?.uri ? parsed : null
+    } catch {
+      await AsyncStorage.removeItem(TEMP_PROFILE_IMAGE_KEY)
+      return null
+    }
+  }
+
   const handleSubmit = async () => {
     const validationError = validate(form)
     const profileInterests = getProfileInterests()
@@ -103,7 +127,7 @@ export default function CreateAccount() {
     setIsSubmitting(true)
 
     try {
-      const profileImage = await AsyncStorage.getItem(TEMP_PROFILE_IMAGE_KEY)
+      const pendingProfileImage = await getPendingProfileImage()
       const { response, data } = await apiJson('/signup', {
         method: 'POST',
         headers: {
@@ -118,7 +142,6 @@ export default function CreateAccount() {
             schoolOrWork: profileParams.schoolOrWork,
             bio: profileParams.bio,
             interests: profileInterests,
-            profileImage: profileImage || '',
           },
         }),
       })
@@ -128,15 +151,46 @@ export default function CreateAccount() {
         return
       }
 
-      await saveAuthSession(data.token, data.user)
+      let nextUser = data.user
+
+      if (pendingProfileImage) {
+        setMessage('Uploading profile picture...')
+
+        const profileImageUrl = await uploadImageToCloudinary({
+          token: data.token,
+          uri: pendingProfileImage.uri,
+          mimeType: pendingProfileImage.mimeType,
+          fileName: pendingProfileImage.fileName,
+        })
+
+        const { response: updateResponse, data: updateData } = await apiJson('/me', {
+          method: 'PATCH',
+          headers: {
+            Authorization: `Bearer ${data.token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            profile: {
+              ...data.user.profile,
+              profileImage: profileImageUrl,
+            },
+          }),
+        })
+
+        if (updateResponse.ok) {
+          nextUser = updateData.user
+        }
+      }
+
+      await saveAuthSession(data.token, nextUser)
       await AsyncStorage.removeItem(TEMP_PROFILE_IMAGE_KEY)
 
       router.replace({
         pathname: '/home',
-        params: getHomeParams(data.token, data.user),
+        params: getHomeParams(data.token, nextUser),
       })
-    } catch {
-      setMessage('Network error. Please try again later.')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Network error. Please try again later.')
     } finally {
       setIsSubmitting(false)
     }
