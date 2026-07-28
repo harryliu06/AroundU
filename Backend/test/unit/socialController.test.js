@@ -29,6 +29,7 @@ mock.module(new URL('../../logic/socialLogic.js', import.meta.url).href, {
     listFriendRequestsByToken: mockLogicFunction('listFriendRequestsByToken'),
     listFriendsByToken: mockLogicFunction('listFriendsByToken'),
     listMessagesByToken: mockLogicFunction('listMessagesByToken'),
+    reqSignature: mockLogicFunction('reqSignature'),
     sendMessageByToken: mockLogicFunction('sendMessageByToken'),
     unblockUserByToken: mockLogicFunction('unblockUserByToken'),
   },

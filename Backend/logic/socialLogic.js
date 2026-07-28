@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 import Friendship from '../database/friendship.js'
 import Message from '../database/message.js'
 import User from '../database/user.js'
+import { v2 as cloudinary } from 'cloudinary'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key'
 
@@ -415,5 +416,41 @@ export async function listMessagesByToken(authorizationHeader, friendId) {
   return {
     status: 200,
     body: { messages },
+  }
+}
+
+export async function reqSignature(authorizationHeader) {
+  const auth = await getAuthenticatedUser(authorizationHeader)
+
+  if (auth.error) return auth.error
+
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME
+  const apiKey = process.env.CLOUDINARY_API_KEY
+  const apiSecret = process.env.CLOUDINARY_API_SECRET
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    return { status: 500, body: { message: 'Cloudinary configuration is missing.' } }
+  }
+
+  const timestamp = Math.round(Date.now() / 1000)
+  const folder = 'aroundu/profile-images'
+
+  const signature = cloudinary.utils.api_sign_request(
+    {
+      timestamp,
+      folder,
+    },
+    apiSecret
+  )
+
+  return {
+    status: 200,
+    body: {
+      signature,
+      timestamp,
+      folder,
+      apiKey,
+      cloudName,
+    },
   }
 }

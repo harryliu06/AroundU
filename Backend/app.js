@@ -15,6 +15,7 @@ import {
   addFriend,
   blockUser,
   getFriendStatus,
+  getCloudinarySignature,
   listBlockedUsers,
   listFriendRequests,
   listFriends,
@@ -48,5 +49,6 @@ app.get('/friend-requests', listFriendRequests)
 app.post('/friend-requests/:requestId/accept', acceptFriendRequest)
 app.get('/chats/:friendId/messages', listMessages)
 app.post('/chats/:friendId/messages', sendMessage)
+app.post('/cloudinary/signature', getCloudinarySignature)
 
 export default app

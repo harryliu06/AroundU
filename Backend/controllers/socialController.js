@@ -7,6 +7,7 @@ import {
   listFriendRequestsByToken,
   listFriendsByToken,
   listMessagesByToken,
+  reqSignature,
   sendMessageByToken,
   unblockUserByToken,
 } from '../logic/socialLogic.js'
@@ -125,5 +126,16 @@ export async function listMessages(req, res) {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error while fetching messages.' })
+  }
+}
+
+export async function getCloudinarySignature(req, res) {
+  try {
+    const result = await reqSignature(req.headers.authorization)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while creating upload signature.' })
   }
 }
