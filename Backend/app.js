@@ -2,11 +2,13 @@ import express from 'express'
 import cors from 'cors'
 
 import {
+  confirmReset,
   getCurrentUser,
   getUser,
   login,
   signup,
   nearbyUsers,
+  requestReset,
   updateCurrentUser,
   updateCurrentUserLocation,
 } from './controllers/userController.js'
@@ -34,6 +36,8 @@ app.get('/', (req, res) => {
 
 app.post('/signup', signup)
 app.post('/login', login)
+app.post('/password-reset/request', requestReset)
+app.post('/password-reset/confirm', confirmReset)
 app.get('/me', getCurrentUser)
 app.patch('/me', updateCurrentUser)
 app.patch('/me/location', updateCurrentUserLocation)

@@ -1,8 +1,10 @@
 import {
+  confirmPasswordReset,
   getUserById,
   getUserByToken,
   listNearbyUsersByToken,
   loginUser,
+  requestPasswordReset,
   signupUser,
   updateUserLocationByToken,
   updateUserProfileByToken,
@@ -27,6 +29,28 @@ export async function login(req, res) {
   } catch (error) {
     console.error(error)
     res.status(500).json({ message: 'Server error while logging in.' })
+  }
+}
+
+export async function requestReset(req, res) {
+  try {
+    const result = await requestPasswordReset(req.body)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while requesting password reset.' })
+  }
+}
+
+export async function confirmReset(req, res) {
+  try {
+    const result = await confirmPasswordReset(req.body)
+
+    res.status(result.status).json(result.body)
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ message: 'Server error while resetting password.' })
   }
 }
 

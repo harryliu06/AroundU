@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema(
       longitude: { type: Number, default: null },
       updatedAt: { type: Date, default: null },
     },
+    passwordReset: {
+      codeHash: { type: String, default: '' },
+      expiresAt: { type: Date, default: null },
+    },
   },
   { timestamps: true }
 )
