@@ -15,13 +15,13 @@ import {
   addFriend,
   blockUser,
   getFriendStatus,
-  getCloudinarySignature,
   listBlockedUsers,
   listFriendRequests,
   listFriends,
   listMessages,
   sendMessage,
   unblockUser,
+  reqSignature,
 } from './controllers/socialController.js'
 
 const app = express()
@@ -49,6 +49,6 @@ app.get('/friend-requests', listFriendRequests)
 app.post('/friend-requests/:requestId/accept', acceptFriendRequest)
 app.get('/chats/:friendId/messages', listMessages)
 app.post('/chats/:friendId/messages', sendMessage)
-app.post('/cloudinary/signature', getCloudinarySignature)
+app.post('/cloudinary/signature', reqSignature)
 
 export default app
