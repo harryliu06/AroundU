@@ -165,7 +165,7 @@ export default function Login() {
 
             <Pressable
               style={styles.forgotButton}
-              onPress={() => setStatusMessage('Password reset flow not implemented.') }
+              onPress={() => router.push('/forgotPassword')}
             >
               <Text style={styles.forgotText}>Forgot Password?</Text>
             </Pressable>

@@ -207,7 +207,7 @@ export default function Home() {
             }
           })
         )
-        setNearbyMessage(users.length ? '' : 'No nearby users share your interests yet.')
+        setNearbyMessage(users.length ? '' : 'No nearby users yet.')
       } catch {
         setNearbyMessage('Network error loading nearby users.')
         setLocationMessage('Could not update location.')

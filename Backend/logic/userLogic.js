@@ -325,7 +325,6 @@ export async function listNearbyUsersByToken(authorizationHeader) {
           }
         })
         .filter((user) => user.friendStatus !== 'blocked')
-        .filter((user) => !currentInterests.length || user.sharedInterests.length > 0)
         .sort((firstUser, secondUser) => secondUser.matchScore - firstUser.matchScore)
         .slice(0, 20)
         .map((user, index) => ({
@@ -336,25 +335,21 @@ export async function listNearbyUsersByToken(authorizationHeader) {
   }
 }
 
-export async function requestPasswordReset(email) {
+export async function requestPasswordReset({ email }) {
   const normalizedEmail = normalizeEmail(email)
 
   if (!normalizedEmail) {
-    return {
-      status: 400, body: { message: 'Email is required.' }
-    }
+    return { status: 400, body: { message: 'Email is required.' } }
   }
 
   const user = await User.findOne({ email: normalizedEmail })
 
   if (!user) {
-    return {
-      status: 404, body: { message: 'User not found.' }
-    }
+    return { status: 404, body: { message: 'No account found with this email.' } }
   }
 
   const resetCode = createResetCode()
-  user.passwordResetCode = {
+  user.passwordReset = {
     codeHash: await bcrypt.hash(resetCode, 10),
     expiresAt: new Date(Date.now() + 15 * 60 * 1000),
   }
@@ -375,8 +370,9 @@ export async function requestPasswordReset(email) {
 }
 
 
-export async function confirmPasswordReset(email, code, newPassword) {
+export async function confirmPasswordReset({ email, code, newPassword }) {
   const normalizedEmail = normalizeEmail(email)
+
   if (!normalizedEmail || !newPassword || !code) {
     return { status: 400, body: { message: 'Email, code, and new password are required.' } }
   }
@@ -386,7 +382,7 @@ export async function confirmPasswordReset(email, code, newPassword) {
   }
   const user = await User.findOne({ email: normalizedEmail })
 
-  if (!user || !user.passwordResetCode?.codeHash || !user.passwordResetCode?.expiresAt) {
+  if (!user || !user.passwordReset?.codeHash || !user.passwordReset?.expiresAt) {
     return { status: 400, body: { message: 'Invalid or expired reset code.' } }
   }
 
@@ -396,7 +392,7 @@ export async function confirmPasswordReset(email, code, newPassword) {
     return { status: 400, body: { message: 'Expired Reset Code' } }
   }
 
-  const isCodeValid = await bcrypt.compare(String(code).trim(), user.passwordResetCode.codeHash)
+  const isCodeValid = await bcrypt.compare(String(code).trim(), user.passwordReset.codeHash)
 
   if (!isCodeValid) {
     return {
@@ -405,7 +401,7 @@ export async function confirmPasswordReset(email, code, newPassword) {
   }
 
   user.password = await bcrypt.hash(newPassword, 10)
-  user.passwordResetCode = { codeHash: '', expiresAt: null }
+  user.passwordReset = { codeHash: '', expiresAt: null }
   await user.save()
 
   return {
