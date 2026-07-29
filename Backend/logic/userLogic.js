@@ -360,7 +360,11 @@ export async function requestPasswordReset({ email }) {
   
   if (!emailResult.sent) {
     return {
-      status: 500, body: { message: 'Failed to send password reset email.' }
+      status: 500,
+      body: {
+        message: 'Failed to send password reset email.',
+        detail: emailResult.error,
+      },
     }
   }
 

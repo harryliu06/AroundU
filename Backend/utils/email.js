@@ -1,6 +1,7 @@
 import { Resend } from 'resend'
 
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL
+const RESEND_API_KEY = process.env.RESEND_API_KEY
 
 export async function sendPasswordResetEmail({ to, resetCode }) {
   const apiKey = process.env.RESEND_API_KEY
@@ -13,16 +14,25 @@ export async function sendPasswordResetEmail({ to, resetCode }) {
   }
 
   const resend = new Resend(apiKey)
-  const result = await resend.emails.send({
-    from: RESEND_FROM_EMAIL,
-    to,
-    subject: 'AroundU password reset code',
-    html: `
-      <p>Your AroundU password reset code is:</p>
-      <p><strong>${resetCode}</strong></p>
-      <p>This code expires in 10 minutes.</p>
-    `,
-  })
+  let result
+
+  try {
+    result = await resend.emails.send({
+      from: RESEND_FROM_EMAIL,
+      to,
+      subject: 'AroundU password reset code',
+      html: `
+        <p>Your AroundU password reset code is:</p>
+        <p><strong>${resetCode}</strong></p>
+        <p>This code expires in 15 minutes.</p>
+      `,
+    })
+  } catch (error) {
+    return {
+      sent: false,
+      error: error.message || 'Could not send password reset email.',
+    }
+  }
 
   if (result.error) {
     return {
