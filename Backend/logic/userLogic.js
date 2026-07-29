@@ -4,6 +4,7 @@ import mongoose from 'mongoose'
 
 import Friendship from '../database/friendship.js'
 import User from '../database/user.js'
+import { sendPasswordResetEmail } from '../utils/email.js'
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret_key'
 
@@ -37,6 +38,10 @@ function getPublicUser(user) {
 
 function createToken(user) {
   return jwt.sign({ id: user.id }, JWT_SECRET, { expiresIn: '1h' })
+}
+
+function createResetCode() {
+  return String(Math.floor(100000 + Math.random() * 900000))
 }
 
 function buildAuthResponse(message, user) {
