@@ -335,3 +335,83 @@ export async function listNearbyUsersByToken(authorizationHeader) {
     },
   }
 }
+
+export async function requestPasswordReset(email) {
+  const normalizedEmail = normalizeEmail(email)
+
+  if (!normalizedEmail) {
+    return {
+      status: 400, body: { message: 'Email is required.' }
+    }
+  }
+
+  const user = await User.findOne({ email: normalizedEmail })
+
+  if (!user) {
+    return {
+      status: 404, body: { message: 'User not found.' }
+    }
+  }
+
+  const resetCode = createResetCode()
+  user.passwordResetCode = {
+    codeHash: await bcrypt.hash(resetCode, 10),
+    expiresAt: new Date(Date.now() + 15 * 60 * 1000),
+  }
+
+  await user.save()
+
+  const emailResult = await sendPasswordResetEmail({ to: normalizedEmail, resetCode })
+  
+  if (!emailResult.sent) {
+    return {
+      status: 500, body: { message: 'Failed to send password reset email.' }
+    }
+  }
+
+  return {
+    status: 200, body: { message: 'Password reset email sent successfully.' }
+  }
+}
+
+
+export async function confirmPasswordReset(email, code, newPassword) {
+  const normalizedEmail = normalizeEmail(email)
+  if (!normalizedEmail || !newPassword || !code) {
+    return { status: 400, body: { message: 'Email, code, and new password are required.' } }
+  }
+
+  if (String(newPassword).length < 8) {
+    return { status: 400, body: { message: 'Password must be at least 8 characters.' } }
+  }
+  const user = await User.findOne({ email: normalizedEmail })
+
+  if (!user || !user.passwordResetCode?.codeHash || !user.passwordResetCode?.expiresAt) {
+    return { status: 400, body: { message: 'Invalid or expired reset code.' } }
+  }
+
+  if (new Date(user.passwordReset.expiresAt).getTime() < Date.now()) {
+    user.passwordReset = { codeHash: '', expiresAt: null }
+    await user.save()
+    return { status: 400, body: { message: 'Expired Reset Code' } }
+  }
+
+  const isCodeValid = await bcrypt.compare(String(code).trim(), user.passwordResetCode.codeHash)
+
+  if (!isCodeValid) {
+    return {
+      status: 400, body: { message: 'Invalid Reset Code' }
+    }
+  }
+
+  user.password = await bcrypt.hash(newPassword, 10)
+  user.passwordResetCode = { codeHash: '', expiresAt: null }
+  await user.save()
+
+  return {
+    status: 200, body: { message: 'Password reset successful.' }
+  }
+}
+
+
+
