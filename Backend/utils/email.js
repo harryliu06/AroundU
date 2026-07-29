@@ -1,7 +1,6 @@
 import { Resend } from 'resend'
 
-const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL
-const RESEND_API_KEY = process.env.RESEND_API_KEY
+const RESEND_FROM_EMAIL = process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev'
 
 export async function sendPasswordResetEmail({ to, resetCode }) {
   const apiKey = process.env.RESEND_API_KEY
@@ -10,6 +9,13 @@ export async function sendPasswordResetEmail({ to, resetCode }) {
     return {
       sent: false,
       error: 'RESEND_API_KEY is missing.',
+    }
+  }
+
+  if (!RESEND_FROM_EMAIL) {
+    return {
+      sent: false,
+      error: 'RESEND_FROM_EMAIL is missing.',
     }
   }
 

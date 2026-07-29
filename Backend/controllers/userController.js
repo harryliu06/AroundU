@@ -38,8 +38,11 @@ export async function requestReset(req, res) {
 
     res.status(result.status).json(result.body)
   } catch (error) {
-    console.error(error)
-    res.status(500).json({ message: 'Server error while requesting password reset.' })
+    console.error('Password reset request failed:', error)
+    res.status(500).json({
+      message: 'Server error while requesting password reset.',
+      detail: error.message || 'Unknown password reset error.',
+    })
   }
 }
 
